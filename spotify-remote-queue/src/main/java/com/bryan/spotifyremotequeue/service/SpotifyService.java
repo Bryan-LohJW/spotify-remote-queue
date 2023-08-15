@@ -1,10 +1,13 @@
 package com.bryan.spotifyremotequeue.service;
 
 import com.bryan.spotifyremotequeue.controller.request.AuthenticateRequest;
+import com.bryan.spotifyremotequeue.controller.request.RegisterRequest;
 import com.bryan.spotifyremotequeue.controller.request.SearchRequest;
 import com.bryan.spotifyremotequeue.exception.AuthenticateException;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
+import com.bryan.spotifyremotequeue.model.User;
 import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
+import com.bryan.spotifyremotequeue.repository.UserRepository;
 import com.bryan.spotifyremotequeue.service.response.AuthenticateResponse;
 import com.bryan.spotifyremotequeue.service.response.CurrentUserProfileResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,9 @@ public class SpotifyService {
 
     @Autowired
     private SpotifyRoomRepository spotifyRoomRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Value("${spotify.authorizationHeader}")
     private String authorizationHeader;
@@ -54,6 +60,7 @@ public class SpotifyService {
                     .bodyToMono(AuthenticateResponse.class)
                     .block();
         } catch (WebClientResponseException exception) {
+            System.out.println(exception.getResponseBodyAsString());
             throw new AuthenticateException(exception);
         }
 
@@ -69,7 +76,13 @@ public class SpotifyService {
         } catch (WebClientResponseException exception) {
             throw new AuthenticateException(exception);
         }
-        return spotifyRoomRepository.save(new SpotifyRoom(authenticateResponse, currentUserProfileResponse.getId()));
+        SpotifyRoom spotifyRoom = spotifyRoomRepository.save(new SpotifyRoom(authenticateResponse, currentUserProfileResponse.getId()));
+        userRepository.save(new User(spotifyRoom.getOwner(), spotifyRoom));
+        return spotifyRoom;
+    }
+
+    public void register(RegisterRequest request) {
+
     }
 
     public String search(SearchRequest request) {

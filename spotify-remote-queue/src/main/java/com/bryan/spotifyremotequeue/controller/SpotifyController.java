@@ -1,6 +1,7 @@
 package com.bryan.spotifyremotequeue.controller;
 
 import com.bryan.spotifyremotequeue.controller.request.AuthenticateRequest;
+import com.bryan.spotifyremotequeue.controller.request.RegisterRequest;
 import com.bryan.spotifyremotequeue.controller.request.SearchRequest;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.service.SpotifyService;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("api/v1")
+@RequestMapping("api/v1/spotify")
 public class SpotifyController {
 
     @Autowired
@@ -21,6 +22,12 @@ public class SpotifyController {
     public ResponseEntity<SpotifyRoom> authenticate(@RequestBody AuthenticateRequest request) {
         SpotifyRoom spotifyRoom = spotifyService.authenticate(request);
         return new ResponseEntity<>(spotifyRoom, HttpStatus.OK);
+    }
+
+    @PostMapping("register")
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+        spotifyService.register(request);
+        return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
     }
 
     @GetMapping("search")
