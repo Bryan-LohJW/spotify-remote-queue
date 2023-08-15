@@ -1,9 +1,13 @@
 package com.bryan.spotifyremotequeue.service;
 
-import com.bryan.spotifyremotequeue.controller.requests.AuthenticateRequest;
-import com.bryan.spotifyremotequeue.controller.requests.SearchRequest;
+import com.bryan.spotifyremotequeue.controller.request.AuthenticateRequest;
+import com.bryan.spotifyremotequeue.controller.request.SearchRequest;
 import com.bryan.spotifyremotequeue.exception.AuthenticateException;
+import com.bryan.spotifyremotequeue.model.SpotifyRoom;
+import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
 import com.bryan.spotifyremotequeue.service.response.AuthenticateResponse;
+import com.bryan.spotifyremotequeue.service.response.CurrentUserProfileResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -12,13 +16,14 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class SpotifyService {
+
+    @Autowired
+    private SpotifyRoomRepository spotifyRoomRepository;
 
     @Value("${spotify.authorizationHeader}")
     private String authorizationHeader;
@@ -28,7 +33,7 @@ public class SpotifyService {
 
     private String accessToken;
 
-    public AuthenticateResponse authenticate(AuthenticateRequest request) throws AuthenticateException {
+    public SpotifyRoom authenticate(AuthenticateRequest request) throws AuthenticateException {
         String uri = "https://accounts.spotify.com/api/token";
 
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
@@ -37,26 +42,34 @@ public class SpotifyService {
         bodyValues.add("grant_type", "authorization_code");
 
         WebClient.Builder builder = WebClient.builder();
-
+        AuthenticateResponse authenticateResponse = null;
         try {
-            AuthenticateResponse response =
-                    builder.build()
-                            .post()
-                            .uri(uri)
-                            .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(authorizationHeader.getBytes()))
-                            .header("Content-Type", "application/x-www-form-urlencoded")
-                            .body(BodyInserters.fromFormData(bodyValues))
-                            .retrieve()
-                            .bodyToMono(AuthenticateResponse.class)
-                            .block();
-
-            System.out.println(response.toString());
-            accessToken = response.getAccess_token();
-
-            return response;
+            authenticateResponse = builder.build()
+                    .post()
+                    .uri(uri)
+                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(authorizationHeader.getBytes()))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .body(BodyInserters.fromFormData(bodyValues))
+                    .retrieve()
+                    .bodyToMono(AuthenticateResponse.class)
+                    .block();
         } catch (WebClientResponseException exception) {
             throw new AuthenticateException(exception);
         }
+
+        CurrentUserProfileResponse currentUserProfileResponse = null;
+        try {
+            currentUserProfileResponse = builder.build()
+                    .get()
+                    .uri("https://api.spotify.com/v1/me")
+                    .header("Authorization", "Bearer " + authenticateResponse.getAccess_token())
+                    .retrieve()
+                    .bodyToMono(CurrentUserProfileResponse.class)
+                    .block();
+        } catch (WebClientResponseException exception) {
+            throw new AuthenticateException(exception);
+        }
+        return spotifyRoomRepository.save(new SpotifyRoom(authenticateResponse, currentUserProfileResponse.getId()));
     }
 
     public String search(SearchRequest request) {
@@ -69,7 +82,7 @@ public class SpotifyService {
                     builder.build()
                             .get()
                             .uri(uri)
-                            .header("Authorization", "Bearer " + "ACCESSTOKEN")
+                            .header("Authorization", "Bearer " + accessToken)
                             .retrieve()
                             .bodyToMono(String.class)
                             .block();

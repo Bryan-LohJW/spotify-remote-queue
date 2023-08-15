@@ -1,4 +1,4 @@
-package com.bryan.spotifyremotequeue.controller.requests;
+package com.bryan.spotifyremotequeue.controller.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -11,12 +11,19 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticateException.class)
-    public ResponseEntity<ErrorDetails> handleAuthenticateError(AuthenticateException exception) {
+    public ResponseEntity<ErrorDetails> handleAuthenticateException(AuthenticateException exception) {
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 exception.getMessage(),
                 "AUTHENTICATION_EXCEPTION"
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDetails> handleAllException(Exception exception) {
+        return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(),
+                exception.getMessage(),
+                "AUTHENTICATION_EXCEPTION"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
