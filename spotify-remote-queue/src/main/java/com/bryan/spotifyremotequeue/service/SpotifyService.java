@@ -1,7 +1,7 @@
 package com.bryan.spotifyremotequeue.service;
 
-import com.bryan.spotifyremotequeue.controller.request.AuthenticateRequest;
-import com.bryan.spotifyremotequeue.controller.request.RegisterRequest;
+import com.bryan.spotifyremotequeue.controller.request.RegisterRoomRequest;
+import com.bryan.spotifyremotequeue.controller.request.RegisterUserRequest;
 import com.bryan.spotifyremotequeue.controller.request.SearchRequest;
 import com.bryan.spotifyremotequeue.exception.AuthenticateException;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
@@ -12,7 +12,9 @@ import com.bryan.spotifyremotequeue.service.response.AuthenticateResponse;
 import com.bryan.spotifyremotequeue.service.response.CurrentUserProfileResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -44,7 +46,7 @@ public class SpotifyService {
 
     private String accessToken;
 
-    public User registerRoom(AuthenticateRequest request) throws AuthenticateException {
+    public User registerRoom(RegisterRoomRequest request) throws AuthenticateException {
         String uri = "https://accounts.spotify.com/api/token";
 
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
@@ -82,13 +84,20 @@ public class SpotifyService {
             throw new AuthenticateException(exception);
         }
         SpotifyRoom spotifyRoom = spotifyRoomRepository.save(new SpotifyRoom(authenticateResponse, currentUserProfileResponse.getId()));
-        Collection<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ROLE_OWNER"), new SimpleGrantedAuthority("ROLE_USER"));
+        Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(Arrays.asList("ROLE_OWNER", "ROLE_USER"));
         userRepository.save(new User(currentUserProfileResponse.getDisplay_name(), authorities, spotifyRoom));
         return userRepository.save(new User(currentUserProfileResponse.getDisplay_name(), authorities, spotifyRoom));
     }
 
-    public void register(RegisterRequest request) {
-
+    public User registerUser(RegisterUserRequest request) {
+        SpotifyRoom room = spotifyRoomRepository.findById(request.getRoomId()).orElseGet(() -> {
+            throw new BadCredentialsException("Invalid room id");
+        });
+        if (!room.getPin().equals(request.getPin())) {
+            throw new BadCredentialsException("Invalid pin");
+        }
+        Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(Arrays.asList("ROLE_USER"));
+        return userRepository.save(new User(request.getUserId(), authorities, room));
     }
 
     public String search(SearchRequest request) {

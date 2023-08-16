@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterRequest {
-    private String userId;
-    private String roomId;
-    private String pin;
+public class RegisterRoomRequest {
+    private String code;
 }

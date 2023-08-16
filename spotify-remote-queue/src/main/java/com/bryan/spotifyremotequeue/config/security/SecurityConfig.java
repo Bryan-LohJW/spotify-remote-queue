@@ -18,10 +18,7 @@ import java.util.Collections;
 
 @Configuration
 public class SecurityConfig {
-
-    @Autowired
-    private AuthenticationProvider authenticationProvider;
-
+    
     @Autowired
     private JWTTokenValidatorFilter jwtTokenValidatorFilter;
 

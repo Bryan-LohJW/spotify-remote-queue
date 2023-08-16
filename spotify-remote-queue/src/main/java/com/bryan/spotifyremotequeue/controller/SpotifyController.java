@@ -1,7 +1,7 @@
 package com.bryan.spotifyremotequeue.controller;
 
-import com.bryan.spotifyremotequeue.controller.request.AuthenticateRequest;
-import com.bryan.spotifyremotequeue.controller.request.RegisterRequest;
+import com.bryan.spotifyremotequeue.controller.request.RegisterRoomRequest;
+import com.bryan.spotifyremotequeue.controller.request.RegisterUserRequest;
 import com.bryan.spotifyremotequeue.controller.request.SearchRequest;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;
@@ -26,7 +26,7 @@ public class SpotifyController {
     private AuthenticationService authenticationService;
 
     @PostMapping("registerRoom")
-    public ResponseEntity<SpotifyRoom> registerRoom(@RequestBody AuthenticateRequest request) {
+    public ResponseEntity<SpotifyRoom> registerRoom(@RequestBody RegisterRoomRequest request) {
         User user = spotifyService.registerRoom(request);
         String token = authenticationService.generateToken(user);
         MultiValueMap<String, String> headers = new HttpHeaders();
@@ -35,9 +35,12 @@ public class SpotifyController {
     }
 
     @PostMapping("registerUser")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterRequest request) {
-        spotifyService.register(request);
-        return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
+    public ResponseEntity<String> registerUser(@RequestBody RegisterUserRequest request) {
+        User user = spotifyService.registerUser(request);
+        String token = authenticationService.generateToken(user);
+        MultiValueMap<String, String> headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        return new ResponseEntity<>("SUCCESS", headers, HttpStatus.OK);
     }
 
     @GetMapping("search")
