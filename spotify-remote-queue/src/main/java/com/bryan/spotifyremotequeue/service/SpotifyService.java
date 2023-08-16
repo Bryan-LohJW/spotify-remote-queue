@@ -12,6 +12,8 @@ import com.bryan.spotifyremotequeue.service.response.AuthenticateResponse;
 import com.bryan.spotifyremotequeue.service.response.CurrentUserProfileResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -19,11 +21,14 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
 public class SpotifyService {
+    // this service is meant to create rooms, users, handle spotify api calls
 
     @Autowired
     private SpotifyRoomRepository spotifyRoomRepository;
@@ -39,7 +44,7 @@ public class SpotifyService {
 
     private String accessToken;
 
-    public SpotifyRoom authenticate(AuthenticateRequest request) throws AuthenticateException {
+    public User registerRoom(AuthenticateRequest request) throws AuthenticateException {
         String uri = "https://accounts.spotify.com/api/token";
 
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
@@ -77,8 +82,9 @@ public class SpotifyService {
             throw new AuthenticateException(exception);
         }
         SpotifyRoom spotifyRoom = spotifyRoomRepository.save(new SpotifyRoom(authenticateResponse, currentUserProfileResponse.getId()));
-        userRepository.save(new User(spotifyRoom.getOwner(), spotifyRoom));
-        return spotifyRoom;
+        Collection<GrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("ROLE_OWNER"), new SimpleGrantedAuthority("ROLE_USER"));
+        userRepository.save(new User(currentUserProfileResponse.getDisplay_name(), authorities, spotifyRoom));
+        return userRepository.save(new User(currentUserProfileResponse.getDisplay_name(), authorities, spotifyRoom));
     }
 
     public void register(RegisterRequest request) {

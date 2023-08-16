@@ -24,6 +24,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handleAllException(Exception exception) {
         return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(),
                 exception.getMessage(),
-                "AUTHENTICATION_EXCEPTION"), HttpStatus.INTERNAL_SERVER_ERROR);
+                "INTERNAL_SERVER_ERROR"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -4,10 +4,14 @@ import com.bryan.spotifyremotequeue.controller.request.AuthenticateRequest;
 import com.bryan.spotifyremotequeue.controller.request.RegisterRequest;
 import com.bryan.spotifyremotequeue.controller.request.SearchRequest;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
+import com.bryan.spotifyremotequeue.model.User;
+import com.bryan.spotifyremotequeue.service.AuthenticationService;
 import com.bryan.spotifyremotequeue.service.SpotifyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -18,14 +22,20 @@ public class SpotifyController {
     @Autowired
     private SpotifyService spotifyService;
 
-    @PostMapping("authenticate")
-    public ResponseEntity<SpotifyRoom> authenticate(@RequestBody AuthenticateRequest request) {
-        SpotifyRoom spotifyRoom = spotifyService.authenticate(request);
-        return new ResponseEntity<>(spotifyRoom, HttpStatus.OK);
+    @Autowired
+    private AuthenticationService authenticationService;
+
+    @PostMapping("registerRoom")
+    public ResponseEntity<SpotifyRoom> registerRoom(@RequestBody AuthenticateRequest request) {
+        User user = spotifyService.registerRoom(request);
+        String token = authenticationService.generateToken(user);
+        MultiValueMap<String, String> headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        return new ResponseEntity<>(user.getRoom(), headers, HttpStatus.OK);
     }
 
-    @PostMapping("register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+    @PostMapping("registerUser")
+    public ResponseEntity<String> registerUser(@RequestBody RegisterRequest request) {
         spotifyService.register(request);
         return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
     }
@@ -34,5 +44,10 @@ public class SpotifyController {
     public ResponseEntity<String> search(@RequestBody SearchRequest request) {
         spotifyService.search(request);
         return ResponseEntity.ok("Successfully searched");
+    }
+
+    @GetMapping("test")
+    public String test() {
+        return "Able to access endpoint";
     }
 }
