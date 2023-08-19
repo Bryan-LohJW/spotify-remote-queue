@@ -53,10 +53,8 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        if (request.getServletPath().equals("/api/v1/spotify/registerRoom")) {
-            return true;
-        }
-        if (request.getServletPath().equals("/api/v1/spotify/registerUser")) {
+        if (request.getServletPath().equals("/api/v1/spotify/registerRoom") ||
+                request.getServletPath().equals("/api/v1/spotify/registerUser")) {
             return true;
         }
         return false;

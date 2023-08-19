@@ -18,7 +18,7 @@ import java.util.Collections;
 
 @Configuration
 public class SecurityConfig {
-    
+
     @Autowired
     private JWTTokenValidatorFilter jwtTokenValidatorFilter;
 
@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Arrays.asList("http://localhost:5173/", "https://accounts.spotify.com"));
+                    config.setAllowedOrigins(Arrays.asList("http://localhost:5173/"));
                     config.setAllowedMethods(Collections.singletonList("*"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(Collections.singletonList("*"));
