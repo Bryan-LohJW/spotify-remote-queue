@@ -1,10 +1,21 @@
 package com.bryan.spotifyremotequeue.service;
 
-import com.bryan.spotifyremotequeue.controller.requests.AuthenticateRequest;
-import com.bryan.spotifyremotequeue.controller.requests.SearchRequest;
+import com.bryan.spotifyremotequeue.controller.request.RegisterRoomRequest;
+import com.bryan.spotifyremotequeue.controller.request.RegisterUserRequest;
+import com.bryan.spotifyremotequeue.controller.request.SearchRequest;
 import com.bryan.spotifyremotequeue.exception.AuthenticateException;
+import com.bryan.spotifyremotequeue.model.SpotifyRoom;
+import com.bryan.spotifyremotequeue.model.User;
+import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
+import com.bryan.spotifyremotequeue.repository.UserRepository;
 import com.bryan.spotifyremotequeue.service.response.AuthenticateResponse;
+import com.bryan.spotifyremotequeue.service.response.CurrentUserProfileResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -12,13 +23,20 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class SpotifyService {
+    // this service is meant to create rooms, users, handle spotify api calls
+
+    @Autowired
+    private SpotifyRoomRepository spotifyRoomRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Value("${spotify.authorizationHeader}")
     private String authorizationHeader;
@@ -28,7 +46,7 @@ public class SpotifyService {
 
     private String accessToken;
 
-    public AuthenticateResponse authenticate(AuthenticateRequest request) throws AuthenticateException {
+    public User registerRoom(RegisterRoomRequest request) throws AuthenticateException {
         String uri = "https://accounts.spotify.com/api/token";
 
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
@@ -37,26 +55,49 @@ public class SpotifyService {
         bodyValues.add("grant_type", "authorization_code");
 
         WebClient.Builder builder = WebClient.builder();
-
+        AuthenticateResponse authenticateResponse = null;
         try {
-            AuthenticateResponse response =
-                    builder.build()
-                            .post()
-                            .uri(uri)
-                            .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(authorizationHeader.getBytes()))
-                            .header("Content-Type", "application/x-www-form-urlencoded")
-                            .body(BodyInserters.fromFormData(bodyValues))
-                            .retrieve()
-                            .bodyToMono(AuthenticateResponse.class)
-                            .block();
+            authenticateResponse = builder.build()
+                    .post()
+                    .uri(uri)
+                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(authorizationHeader.getBytes()))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .body(BodyInserters.fromFormData(bodyValues))
+                    .retrieve()
+                    .bodyToMono(AuthenticateResponse.class)
+                    .block();
+        } catch (WebClientResponseException exception) {
+            System.out.println(exception.getResponseBodyAsString());
+            throw new AuthenticateException(exception);
+        }
 
-            System.out.println(response.toString());
-            accessToken = response.getAccess_token();
-
-            return response;
+        CurrentUserProfileResponse currentUserProfileResponse = null;
+        try {
+            currentUserProfileResponse = builder.build()
+                    .get()
+                    .uri("https://api.spotify.com/v1/me")
+                    .header("Authorization", "Bearer " + authenticateResponse.getAccess_token())
+                    .retrieve()
+                    .bodyToMono(CurrentUserProfileResponse.class)
+                    .block();
         } catch (WebClientResponseException exception) {
             throw new AuthenticateException(exception);
         }
+        SpotifyRoom spotifyRoom = spotifyRoomRepository.save(new SpotifyRoom(authenticateResponse, currentUserProfileResponse.getId()));
+        Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(Arrays.asList("ROLE_OWNER", "ROLE_USER"));
+        userRepository.save(new User(currentUserProfileResponse.getDisplay_name(), authorities, spotifyRoom));
+        return userRepository.save(new User(currentUserProfileResponse.getDisplay_name(), authorities, spotifyRoom));
+    }
+
+    public User registerUser(RegisterUserRequest request) {
+        SpotifyRoom room = spotifyRoomRepository.findById(request.getRoomId()).orElseGet(() -> {
+            throw new BadCredentialsException("Invalid room id");
+        });
+        if (!room.getPin().equals(request.getPin())) {
+            throw new BadCredentialsException("Invalid pin");
+        }
+        Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(Arrays.asList("ROLE_USER"));
+        return userRepository.save(new User(request.getUserId(), authorities, room));
     }
 
     public String search(SearchRequest request) {
@@ -69,7 +110,7 @@ public class SpotifyService {
                     builder.build()
                             .get()
                             .uri(uri)
-                            .header("Authorization", "Bearer " + "ACCESSTOKEN")
+                            .header("Authorization", "Bearer " + accessToken)
                             .retrieve()
                             .bodyToMono(String.class)
                             .block();

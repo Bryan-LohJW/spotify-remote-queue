@@ -1,4 +1,4 @@
-package com.bryan.spotifyremotequeue.controller.requests;
+package com.bryan.spotifyremotequeue.controller.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticateRequest {
-    private String code;
+public class RegisterUserRequest {
+    private String userId;
+    private String roomId;
+    private String pin;
 }
