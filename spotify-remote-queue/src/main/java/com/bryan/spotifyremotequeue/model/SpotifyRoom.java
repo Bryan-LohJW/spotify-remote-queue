@@ -1,7 +1,6 @@
 package com.bryan.spotifyremotequeue.model;
 
-import com.bryan.spotifyremotequeue.repository.SpotifyRoomIdGenerator;
-import com.bryan.spotifyremotequeue.service.response.AuthenticateResponse;
+import com.bryan.spotifyremotequeue.service.authentication.response.AuthenticateResponse;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -11,13 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.sql.Date;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalUnit;
 import java.util.Random;
 
 @Entity

@@ -1,21 +1,24 @@
-package com.bryan.spotifyremotequeue.service;
+package com.bryan.spotifyremotequeue.service.spotify;
 
+import com.bryan.spotifyremotequeue.config.security.Principal;
 import com.bryan.spotifyremotequeue.controller.request.RegisterRoomRequest;
 import com.bryan.spotifyremotequeue.controller.request.RegisterUserRequest;
-import com.bryan.spotifyremotequeue.controller.request.SearchRequest;
 import com.bryan.spotifyremotequeue.exception.AuthenticateException;
+import com.bryan.spotifyremotequeue.exception.SpotifySearchException;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;
 import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
 import com.bryan.spotifyremotequeue.repository.UserRepository;
-import com.bryan.spotifyremotequeue.service.response.AuthenticateResponse;
-import com.bryan.spotifyremotequeue.service.response.CurrentUserProfileResponse;
+import com.bryan.spotifyremotequeue.service.authentication.response.AuthenticateResponse;
+import com.bryan.spotifyremotequeue.service.spotify.response.CurrentUserProfileResponse;
+import com.bryan.spotifyremotequeue.service.spotify.response.SearchResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -26,6 +29,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +48,7 @@ public class SpotifyService {
     @Value("${spotify.redirectUri}")
     private String redirectUri;
 
-    private String accessToken;
+    private ObjectMapper mapper = new ObjectMapper();
 
     public User registerRoom(RegisterRoomRequest request) throws AuthenticateException {
         String uri = "https://accounts.spotify.com/api/token";
@@ -100,37 +104,39 @@ public class SpotifyService {
         return userRepository.save(new User(request.getUserId(), authorities, room));
     }
 
-    public String search(SearchRequest request) {
-        String uri = generateSearchUri(request);
-
+    public SearchResponse search(String query) throws SpotifySearchException {
+        String uri = generateSearchUri(query);
         WebClient.Builder builder = WebClient.builder();
-
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(principal.getRoomId()).orElseThrow();
+        SearchResponse response = null;
         try {
-            String response =
+            response =
                     builder.build()
                             .get()
                             .uri(uri)
-                            .header("Authorization", "Bearer " + accessToken)
+                            .header("Authorization", "Bearer " + spotifyRoom.getAccessToken())
                             .retrieve()
-                            .bodyToMono(String.class)
+                            .bodyToMono(SearchResponse.class)
                             .block();
 
             System.out.println(response);
-        } catch (WebClientResponseException exception) {
-            System.out.println(exception.getResponseBodyAsString());
+        } catch (Exception exception) {
+            throw new SpotifySearchException("Something went wrong, try again later");
         }
-        return "Success";
+        return response;
     }
 
-    private String generateSearchUri(SearchRequest request) {
+    private String generateSearchUri(String query) {
         StringBuilder stringBuilder = new StringBuilder();
+        List<String> type = Arrays.asList("album", "artist", "playlist", "track", "show", "audiobook");
 
         String uri = stringBuilder
                 .append("https://api.spotify.com/v1/search")
                 .append("?q=")
-                .append(request.getQuery().replace(" ", "%2520"))
+                .append(query.trim().replace(" ", "+"))
                 .append("&type=")
-                .append(request.getType().stream().map(type -> type).collect(Collectors.joining("%2C")))
+                .append(type.stream().collect(Collectors.joining(",")))
                 .toString();
 
         return uri;

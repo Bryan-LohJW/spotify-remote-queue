@@ -1,4 +1,4 @@
-package com.bryan.spotifyremotequeue.service.response;
+package com.bryan.spotifyremotequeue.service.authentication.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
