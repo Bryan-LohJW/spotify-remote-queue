@@ -4,7 +4,6 @@ import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.Random;
 
 public class SpotifyRoomIdGenerator implements IdentifierGenerator {

@@ -20,8 +20,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(SpotifySearchException.class)
+    public ResponseEntity<ErrorDetails> handleSpotifySearchException(SpotifySearchException exception) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "SEARCH_EXCEPTION"
+        );
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleAllException(Exception exception) {
+        System.out.println(exception);
         return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(),
                 exception.getMessage(),
                 "INTERNAL_SERVER_ERROR"), HttpStatus.INTERNAL_SERVER_ERROR);

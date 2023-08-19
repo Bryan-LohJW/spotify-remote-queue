@@ -1,4 +1,4 @@
-package com.bryan.spotifyremotequeue.service;
+package com.bryan.spotifyremotequeue.service.authentication;
 
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;

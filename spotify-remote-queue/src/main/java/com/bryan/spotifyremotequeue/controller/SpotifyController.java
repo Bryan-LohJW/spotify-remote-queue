@@ -2,11 +2,11 @@ package com.bryan.spotifyremotequeue.controller;
 
 import com.bryan.spotifyremotequeue.controller.request.RegisterRoomRequest;
 import com.bryan.spotifyremotequeue.controller.request.RegisterUserRequest;
-import com.bryan.spotifyremotequeue.controller.request.SearchRequest;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;
-import com.bryan.spotifyremotequeue.service.AuthenticationService;
-import com.bryan.spotifyremotequeue.service.SpotifyService;
+import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
+import com.bryan.spotifyremotequeue.service.spotify.SpotifyService;
+import com.bryan.spotifyremotequeue.service.spotify.response.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,6 +30,7 @@ public class SpotifyController {
         User user = spotifyService.registerRoom(request);
         String token = authenticationService.generateToken(user);
         MultiValueMap<String, String> headers = new HttpHeaders();
+        headers.add("Access-Control-Expose-Headers", "Authorization");
         headers.add("Authorization", "Bearer " + token);
         return new ResponseEntity<>(user.getRoom(), headers, HttpStatus.OK);
     }
@@ -44,9 +45,8 @@ public class SpotifyController {
     }
 
     @GetMapping("search")
-    public ResponseEntity<String> search(@RequestBody SearchRequest request) {
-        spotifyService.search(request);
-        return ResponseEntity.ok("Successfully searched");
+    public ResponseEntity<SearchResponse> search(@RequestParam("query") String query) {
+        return ResponseEntity.ok(spotifyService.search(query));
     }
 
     @GetMapping("test")
