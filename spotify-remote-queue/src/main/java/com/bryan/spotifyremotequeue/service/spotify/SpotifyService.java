@@ -86,6 +86,9 @@ public class SpotifyService {
         } catch (WebClientResponseException exception) {
             throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Exception while getting current user profile");
         }
+        if (!currentUserProfileResponse.getProduct().equals("premium")) {
+            throw new SpotifyApiException(HttpStatus.FORBIDDEN.value(), "Requires premium account");
+        }
         if (spotifyRoomRepository.existsByOwner(currentUserProfileResponse.getId())) {
             //https://thorben-janssen.com/avoid-cascadetype-delete-many-assocations/
             SpotifyRoom room = spotifyRoomRepository.findByOwner(currentUserProfileResponse.getId());
