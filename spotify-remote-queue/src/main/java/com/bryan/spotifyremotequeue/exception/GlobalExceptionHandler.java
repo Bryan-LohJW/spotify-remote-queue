@@ -10,14 +10,24 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(AuthenticateException.class)
-    public ResponseEntity<ErrorDetails> handleAuthenticateException(AuthenticateException exception) {
+    @ExceptionHandler(SpotifyApiException.class)
+    public ResponseEntity<ErrorDetails> handleAuthenticateException(SpotifyApiException exception) {
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 exception.getMessage(),
                 "AUTHENTICATION_EXCEPTION"
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RegistrationException.class)
+    public ResponseEntity<ErrorDetails> handleRegistrationException(RegistrationException exception) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                LocalDateTime.now(),
+                exception.getMessage(),
+                "REGISTRATION_EXCEPTION"
+        );
+        return new ResponseEntity<>(errorDetails, exception.getStatus());
     }
 
     @ExceptionHandler(SpotifySearchException.class)

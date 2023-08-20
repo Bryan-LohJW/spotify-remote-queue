@@ -3,7 +3,8 @@ package com.bryan.spotifyremotequeue.service.spotify;
 import com.bryan.spotifyremotequeue.config.security.Principal;
 import com.bryan.spotifyremotequeue.controller.request.RegisterRoomRequest;
 import com.bryan.spotifyremotequeue.controller.request.RegisterUserRequest;
-import com.bryan.spotifyremotequeue.exception.AuthenticateException;
+import com.bryan.spotifyremotequeue.exception.RegistrationException;
+import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
 import com.bryan.spotifyremotequeue.exception.SpotifySearchException;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;
@@ -15,21 +16,20 @@ import com.bryan.spotifyremotequeue.service.spotify.response.SearchResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,7 +50,8 @@ public class SpotifyService {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    public User registerRoom(RegisterRoomRequest request) throws AuthenticateException {
+    @Transactional
+    public User registerRoom(RegisterRoomRequest request) throws SpotifyApiException {
         String uri = "https://accounts.spotify.com/api/token";
 
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
@@ -71,10 +72,8 @@ public class SpotifyService {
                     .bodyToMono(AuthenticateResponse.class)
                     .block();
         } catch (WebClientResponseException exception) {
-            System.out.println(exception.getResponseBodyAsString());
-            throw new AuthenticateException(exception);
+            throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while getting Spotify access token");
         }
-
         CurrentUserProfileResponse currentUserProfileResponse = null;
         try {
             currentUserProfileResponse = builder.build()
@@ -85,7 +84,12 @@ public class SpotifyService {
                     .bodyToMono(CurrentUserProfileResponse.class)
                     .block();
         } catch (WebClientResponseException exception) {
-            throw new AuthenticateException(exception);
+            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Exception while getting current user profile");
+        }
+        if (spotifyRoomRepository.existsByOwner(currentUserProfileResponse.getId())) {
+            //https://thorben-janssen.com/avoid-cascadetype-delete-many-assocations/
+            SpotifyRoom room = spotifyRoomRepository.findByOwner(currentUserProfileResponse.getId());
+            spotifyRoomRepository.deleteByOwner(currentUserProfileResponse.getId());
         }
         SpotifyRoom spotifyRoom = spotifyRoomRepository.save(new SpotifyRoom(authenticateResponse, currentUserProfileResponse.getId()));
         Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(Arrays.asList("ROLE_OWNER", "ROLE_USER"));
@@ -93,18 +97,23 @@ public class SpotifyService {
         return userRepository.save(new User(currentUserProfileResponse.getDisplay_name(), authorities, spotifyRoom));
     }
 
-    public User registerUser(RegisterUserRequest request) {
+    public User registerUser(RegisterUserRequest request) throws SpotifyApiException {
         SpotifyRoom room = spotifyRoomRepository.findById(request.getRoomId()).orElseGet(() -> {
-            throw new BadCredentialsException("Invalid room id");
+            throw new RegistrationException("Invalid room id", HttpStatus.BAD_REQUEST);
         });
         if (!room.getPin().equals(request.getPin())) {
-            throw new BadCredentialsException("Invalid pin");
+            throw new RegistrationException("Invalid pin", HttpStatus.BAD_REQUEST);
         }
+        Optional<User> optionalUser = userRepository.findByUserIdAndRoomId(request.getUserId(), request.getRoomId());
+        if (optionalUser.isPresent()) {
+            throw new RegistrationException("Username taken", HttpStatus.BAD_REQUEST);
+        }
+
         Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(Arrays.asList("ROLE_USER"));
         return userRepository.save(new User(request.getUserId(), authorities, room));
     }
 
-    public SearchResponse search(String query) throws SpotifySearchException {
+    public SearchResponse search(String query) throws SpotifyApiException {
         String uri = generateSearchUri(query);
         WebClient.Builder builder = WebClient.builder();
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -121,8 +130,8 @@ public class SpotifyService {
                             .block();
 
             System.out.println(response);
-        } catch (Exception exception) {
-            throw new SpotifySearchException("Something went wrong, try again later");
+        } catch (WebClientResponseException exception) {
+            throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while searching");
         }
         return response;
     }
