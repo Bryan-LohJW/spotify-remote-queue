@@ -6,7 +6,6 @@ import com.bryan.spotifyremotequeue.controller.request.RegisterUserRequest;
 import com.bryan.spotifyremotequeue.controller.response.RegisterRoomResponse;
 import com.bryan.spotifyremotequeue.controller.response.RegisterUserResponse;
 import com.bryan.spotifyremotequeue.controller.response.SuccessResponse;
-import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;
 import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
 import com.bryan.spotifyremotequeue.service.spotify.SpotifyService;
@@ -57,5 +56,20 @@ public class SpotifyController {
     @PostMapping("addToQueue")
     public ResponseEntity<SuccessResponse> addToQueue(@RequestBody AddToQueueRequest request) {
         return ResponseEntity.ok(new SuccessResponse(spotifyService.addToQueue(request.getItemUri())));
+    }
+
+    @PostMapping("skipToNext")
+    public ResponseEntity<SuccessResponse> skipToNext() {
+        return ResponseEntity.ok(new SuccessResponse(spotifyService.skipToNext()));
+    }
+
+    @PutMapping("play")
+    public ResponseEntity<SuccessResponse> play() {
+        return ResponseEntity.ok(new SuccessResponse(spotifyService.play()));
+    }
+
+    @PutMapping("pause")
+    public ResponseEntity<SuccessResponse> pause() {
+        return ResponseEntity.ok(new SuccessResponse(spotifyService.pause()));
     }
 }

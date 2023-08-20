@@ -5,7 +5,6 @@ import com.bryan.spotifyremotequeue.controller.request.RegisterRoomRequest;
 import com.bryan.spotifyremotequeue.controller.request.RegisterUserRequest;
 import com.bryan.spotifyremotequeue.exception.RegistrationException;
 import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
-import com.bryan.spotifyremotequeue.exception.SpotifySearchException;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;
 import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -157,6 +155,75 @@ public class SpotifyService {
             System.out.println(response);
         } catch (WebClientResponseException exception) {
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while adding track to playlist");
+        }
+        return "Success";
+    }
+
+    public String skipToNext() {
+        String uri = "https://api.spotify.com/v1/me/player/next";
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(principal.getRoomId()).orElseThrow();
+        WebClient.Builder builder = WebClient.builder();
+        String response = null;
+        try {
+            response =
+                    builder.build()
+                            .post()
+                            .uri(uri)
+                            .header("Authorization", "Bearer " + spotifyRoom.getAccessToken())
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block();
+
+            System.out.println(response);
+        } catch (WebClientResponseException exception) {
+            throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while skipping to next track");
+        }
+        return "Success";
+    }
+
+    public String pause() {
+        String uri = "https://api.spotify.com/v1/me/player/pause";
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(principal.getRoomId()).orElseThrow();
+        WebClient.Builder builder = WebClient.builder();
+        String response = null;
+        try {
+            response =
+                    builder.build()
+                            .put()
+                            .uri(uri)
+                            .header("Authorization", "Bearer " + spotifyRoom.getAccessToken())
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block();
+
+            System.out.println(response);
+        } catch (WebClientResponseException exception) {
+            throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while pausing");
+        }
+        return "Success";
+    }
+
+    public String play() {
+        String uri = "https://api.spotify.com/v1/me/player/play";
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(principal.getRoomId()).orElseThrow();
+        WebClient.Builder builder = WebClient.builder();
+        String response = null;
+        try {
+            response =
+                    builder.build()
+                            .put()
+                            .uri(uri)
+                            .header("Authorization", "Bearer " + spotifyRoom.getAccessToken())
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block();
+
+            System.out.println(response);
+        } catch (WebClientResponseException exception) {
+            throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while playing");
         }
         return "Success";
     }
