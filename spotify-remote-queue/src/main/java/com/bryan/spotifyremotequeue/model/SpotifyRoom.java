@@ -1,17 +1,14 @@
 package com.bryan.spotifyremotequeue.model;
 
 import com.bryan.spotifyremotequeue.service.authentication.response.AuthenticateResponse;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 @Entity
@@ -33,6 +30,9 @@ public class SpotifyRoom {
 
     private LocalDateTime expiry;
 
+    @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<User> users;
+
     public SpotifyRoom(AuthenticateResponse response, String owner) {
         int targetStringLength = 6;
         Random random = new Random();
@@ -41,10 +41,10 @@ public class SpotifyRoom {
             buffer.append(random.nextInt(10));
         }
         this.pin = buffer.toString();
-
         this.accessToken = response.getAccess_token();
         this.owner = owner;
         this.expiry = LocalDateTime.now().plus(Duration.ofSeconds(response.getExpires_in()));
+        this.users = new ArrayList<>();
     }
 
 }

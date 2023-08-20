@@ -55,6 +55,30 @@ const SpotifyResponse = () => {
 		console.log(body);
 	};
 
+	const fetchRegister = async (
+		roomId: string,
+		pin: string,
+		userId: string
+	) => {
+		const url = 'http://localhost:8080/api/v1/spotify/registerUser';
+
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
+				'Content-Type': 'application/json',
+				Authorization: accessToken,
+			},
+			body: JSON.stringify({
+				userId,
+				pin,
+				roomId,
+			}),
+		});
+		const body = await response.json();
+		console.log(body);
+	};
+
 	const params = new URLSearchParams(document.location.search);
 	const code = params.get('code');
 
@@ -85,6 +109,30 @@ const SpotifyResponse = () => {
 				}}
 			>
 				<input type="text" placeholder="Search" id="searchInput" />
+				<button type="submit">Search</button>
+			</form>
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					const roomIdInput = document.getElementById(
+						'roomIdInput'
+					) as HTMLInputElement;
+					const pinInput = document.getElementById(
+						'pinInput'
+					) as HTMLInputElement;
+					const userIdInput = document.getElementById(
+						'userIdInput'
+					) as HTMLInputElement;
+					fetchRegister(
+						roomIdInput.value,
+						pinInput.value,
+						userIdInput.value
+					);
+				}}
+			>
+				<input type="text" placeholder="Room Id" id="roomIdInput" />
+				<input type="text" placeholder="Pin" id="pinInput" />
+				<input type="text" placeholder="Name" id="userIdInput" />
 				<button type="submit">Search</button>
 			</form>
 		</>
