@@ -79,6 +79,24 @@ const SpotifyResponse = () => {
 		console.log(body);
 	};
 
+	const fetchAddToQueue = async (addToQueueInput: string) => {
+		const url = 'http://localhost:8080/api/v1/spotify/addToQueue';
+
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
+				'Content-Type': 'application/json',
+				Authorization: accessToken,
+			},
+			body: JSON.stringify({
+				itemUri: addToQueueInput,
+			}),
+		});
+		const body = await response.json();
+		console.log(body);
+	};
+
 	const params = new URLSearchParams(document.location.search);
 	const code = params.get('code');
 
@@ -133,6 +151,23 @@ const SpotifyResponse = () => {
 				<input type="text" placeholder="Room Id" id="roomIdInput" />
 				<input type="text" placeholder="Pin" id="pinInput" />
 				<input type="text" placeholder="Name" id="userIdInput" />
+				<button type="submit">Search</button>
+			</form>
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					const addToQueueInput = document.getElementById(
+						'addToQueueInput'
+					) as HTMLInputElement;
+
+					fetchAddToQueue(addToQueueInput.value);
+				}}
+			>
+				<input
+					type="text"
+					placeholder="TrackUri"
+					id="addToQueueInput"
+				/>
 				<button type="submit">Search</button>
 			</form>
 		</>

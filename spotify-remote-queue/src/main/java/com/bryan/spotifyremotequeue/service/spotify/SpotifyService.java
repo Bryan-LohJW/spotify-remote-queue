@@ -129,11 +129,33 @@ public class SpotifyService {
                             .bodyToMono(SearchResponse.class)
                             .block();
 
-            System.out.println(response);
         } catch (WebClientResponseException exception) {
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while searching");
         }
         return response;
+    }
+
+    public String addToQueue(String itemUri) throws SpotifyApiException {
+        String uri = "https://api.spotify.com/v1/me/player/queue?uri=" + itemUri.trim();
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(principal.getRoomId()).orElseThrow();
+        WebClient.Builder builder = WebClient.builder();
+        String response = null;
+        try {
+            response =
+                    builder.build()
+                            .post()
+                            .uri(uri)
+                            .header("Authorization", "Bearer " + spotifyRoom.getAccessToken())
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block();
+
+            System.out.println(response);
+        } catch (WebClientResponseException exception) {
+            throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while adding track to playlist");
+        }
+        return "Success";
     }
 
     private String generateSearchUri(String query) {

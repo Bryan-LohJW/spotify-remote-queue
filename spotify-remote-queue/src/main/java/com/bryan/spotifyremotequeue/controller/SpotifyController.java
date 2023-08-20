@@ -1,9 +1,11 @@
 package com.bryan.spotifyremotequeue.controller;
 
+import com.bryan.spotifyremotequeue.controller.request.AddToQueueRequest;
 import com.bryan.spotifyremotequeue.controller.request.RegisterRoomRequest;
 import com.bryan.spotifyremotequeue.controller.request.RegisterUserRequest;
 import com.bryan.spotifyremotequeue.controller.response.RegisterRoomResponse;
 import com.bryan.spotifyremotequeue.controller.response.RegisterUserResponse;
+import com.bryan.spotifyremotequeue.controller.response.SuccessResponse;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;
 import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
@@ -52,8 +54,8 @@ public class SpotifyController {
         return ResponseEntity.ok(spotifyService.search(query));
     }
 
-    @GetMapping("test")
-    public String test() {
-        return "Able to access endpoint";
+    @PostMapping("addToQueue")
+    public ResponseEntity<SuccessResponse> addToQueue(@RequestBody AddToQueueRequest request) {
+        return ResponseEntity.ok(new SuccessResponse(spotifyService.addToQueue(request.getItemUri())));
     }
 }
