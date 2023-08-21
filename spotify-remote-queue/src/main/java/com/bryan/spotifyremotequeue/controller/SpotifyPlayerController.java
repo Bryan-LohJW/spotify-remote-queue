@@ -1,6 +1,7 @@
 package com.bryan.spotifyremotequeue.controller;
 
 import com.bryan.spotifyremotequeue.controller.request.AddToQueueRequest;
+import com.bryan.spotifyremotequeue.controller.response.IsActiveResponse;
 import com.bryan.spotifyremotequeue.controller.response.SuccessResponse;
 import com.bryan.spotifyremotequeue.service.spotify.SpotifyPlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,5 +33,10 @@ public class SpotifyPlayerController {
     @PutMapping("pause")
     public ResponseEntity<SuccessResponse> pause() {
         return ResponseEntity.ok(new SuccessResponse(spotifyPlayerService.pause()));
+    }
+
+    @GetMapping()
+    public ResponseEntity<IsActiveResponse> playerState() {
+        return ResponseEntity.ok(new IsActiveResponse(spotifyPlayerService.isActive()));
     }
 }

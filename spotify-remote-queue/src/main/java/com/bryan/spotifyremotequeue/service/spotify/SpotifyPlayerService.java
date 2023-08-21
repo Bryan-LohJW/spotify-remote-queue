@@ -1,12 +1,18 @@
 package com.bryan.spotifyremotequeue.service.spotify;
 
+import com.bryan.spotifyremotequeue.enums.SpotifyConstants;
 import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
 import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
 import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
+import com.bryan.spotifyremotequeue.service.spotify.response.PlaybackStateResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import java.util.function.IntPredicate;
 
 @Service
 public class SpotifyPlayerService {
@@ -15,7 +21,8 @@ public class SpotifyPlayerService {
     private AuthenticationService authenticationService;
 
     public String addToQueue(String itemUri) throws SpotifyApiException {
-        String uri = "https://api.spotify.com/v1/me/player/queue?uri=" + itemUri.trim();
+        String addToQueueUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER + SpotifyConstants.QUEUE;
+        String uriParams = "?uri=" + itemUri.trim();
         String accessToken = authenticationService.getAccessToken();
         WebClient.Builder builder = WebClient.builder();
         String response = null;
@@ -23,7 +30,7 @@ public class SpotifyPlayerService {
             response =
                     builder.build()
                             .post()
-                            .uri(uri)
+                            .uri(addToQueueUri + uriParams)
                             .header("Authorization", "Bearer " + accessToken)
                             .retrieve()
                             .bodyToMono(String.class)
@@ -37,7 +44,7 @@ public class SpotifyPlayerService {
     }
 
     public String skipToNext() {
-        String uri = "https://api.spotify.com/v1/me/player/next";
+        String nextUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER + SpotifyConstants.NEXT;
         String accessToken = authenticationService.getAccessToken();
         WebClient.Builder builder = WebClient.builder();
         String response = null;
@@ -45,7 +52,7 @@ public class SpotifyPlayerService {
             response =
                     builder.build()
                             .post()
-                            .uri(uri)
+                            .uri(nextUri)
                             .header("Authorization", "Bearer " + accessToken)
                             .retrieve()
                             .bodyToMono(String.class)
@@ -59,7 +66,7 @@ public class SpotifyPlayerService {
     }
 
     public String pause() {
-        String uri = "https://api.spotify.com/v1/me/player/pause";
+        String pauseUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER + SpotifyConstants.PAUSE;
         String accessToken = authenticationService.getAccessToken();
         WebClient.Builder builder = WebClient.builder();
         String response = null;
@@ -67,7 +74,7 @@ public class SpotifyPlayerService {
             response =
                     builder.build()
                             .put()
-                            .uri(uri)
+                            .uri(pauseUri)
                             .header("Authorization", "Bearer " + accessToken)
                             .retrieve()
                             .bodyToMono(String.class)
@@ -81,7 +88,7 @@ public class SpotifyPlayerService {
     }
 
     public String play() {
-        String uri = "https://api.spotify.com/v1/me/player/play";
+        String playUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER + SpotifyConstants.PLAY;
         String accessToken = authenticationService.getAccessToken();
         WebClient.Builder builder = WebClient.builder();
         String response = null;
@@ -89,7 +96,7 @@ public class SpotifyPlayerService {
             response =
                     builder.build()
                             .put()
-                            .uri(uri)
+                            .uri(playUri)
                             .header("Authorization", "Bearer " + accessToken)
                             .retrieve()
                             .bodyToMono(String.class)
@@ -100,5 +107,30 @@ public class SpotifyPlayerService {
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while playing");
         }
         return "Success";
+    }
+
+    public boolean isActive() {
+        String playbackStateUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER;
+        String accessToken = authenticationService.getAccessToken();
+        WebClient.Builder builder = WebClient.builder();
+        PlaybackStateResponse response = null;
+
+        try {
+            response =
+                    builder.build()
+                            .get()
+                            .uri(playbackStateUri)
+                            .header("Authorization", "Bearer " + accessToken)
+                            .retrieve()
+                            .bodyToMono(PlaybackStateResponse.class)
+                            .block();
+        } catch (WebClientResponseException exception) {
+            throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while retrieving playback state");
+        }
+
+        if (response != null && response.getDevice() != null) {
+            return response.getDevice().is_active();
+        }
+        return false;
     }
 }
