@@ -35,8 +35,6 @@ public class SpotifyPlayerService {
                             .retrieve()
                             .bodyToMono(String.class)
                             .block();
-
-            System.out.println(response);
         } catch (WebClientResponseException exception) {
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while adding track to playlist");
         }
@@ -57,8 +55,6 @@ public class SpotifyPlayerService {
                             .retrieve()
                             .bodyToMono(String.class)
                             .block();
-
-            System.out.println(response);
         } catch (WebClientResponseException exception) {
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while skipping to next track");
         }
@@ -79,8 +75,6 @@ public class SpotifyPlayerService {
                             .retrieve()
                             .bodyToMono(String.class)
                             .block();
-
-            System.out.println(response);
         } catch (WebClientResponseException exception) {
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while pausing");
         }
@@ -101,8 +95,6 @@ public class SpotifyPlayerService {
                             .retrieve()
                             .bodyToMono(String.class)
                             .block();
-
-            System.out.println(response);
         } catch (WebClientResponseException exception) {
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while playing");
         }
@@ -127,7 +119,6 @@ public class SpotifyPlayerService {
         } catch (WebClientResponseException exception) {
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while retrieving playback state");
         }
-
         if (response != null && response.getDevice() != null) {
             return response.getDevice().is_active();
         }

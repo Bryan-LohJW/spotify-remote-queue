@@ -12,9 +12,11 @@ import com.bryan.spotifyremotequeue.repository.UserRepository;
 import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
 import com.bryan.spotifyremotequeue.service.authentication.response.AuthenticateResponse;
 import com.bryan.spotifyremotequeue.service.spotify.response.CurrentUserProfileResponse;
+import com.bryan.spotifyremotequeue.service.spotify.response.common.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Service;
@@ -80,7 +82,7 @@ public class SpotifyRegisterService {
                     .bodyToMono(CurrentUserProfileResponse.class)
                     .block();
         } catch (WebClientResponseException exception) {
-            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Exception while getting current user profile");
+            throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while getting current user profile");
         }
         if (!currentUserProfileResponse.getProduct().equals(SpotifyConstants.PREMIUM)) {
             throw new SpotifyApiException(HttpStatus.FORBIDDEN.value(), "Requires premium account");
