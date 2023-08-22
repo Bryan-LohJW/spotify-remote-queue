@@ -17,4 +17,6 @@ public class RegisterRoomResponse {
     private String pin;
 
     private LocalDateTime expiry;
+
+    private boolean isActive;
 }

@@ -45,7 +45,7 @@ public class SpotifyPlayerService {
                 throw new SpotifyApiException(exception.getStatusCode().value(), "Invalid track id");
             }
             if (exception.getStatusCode().value() == 404) {
-                setInactivePlayer();
+                setPlayerState(false);
                 throw new SpotifyApiException(exception.getStatusCode().value(), "No player available");
             }
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while adding track to playlist");
@@ -70,7 +70,7 @@ public class SpotifyPlayerService {
                             .block();
         } catch (WebClientResponseException exception) {
             if (exception.getStatusCode().value() == 404) {
-                setInactivePlayer();
+                setPlayerState(false);
                 throw new SpotifyApiException(exception.getStatusCode().value(), "No player available");
             }
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while skipping to next track");
@@ -95,7 +95,7 @@ public class SpotifyPlayerService {
                             .block();
         } catch (WebClientResponseException exception) {
             if (exception.getStatusCode().value() == 404) {
-                setInactivePlayer();
+                setPlayerState(false);
                 throw new SpotifyApiException(exception.getStatusCode().value(), "No player available");
             }
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while pausing");
@@ -120,7 +120,7 @@ public class SpotifyPlayerService {
                             .block();
         } catch (WebClientResponseException exception) {
             if (exception.getStatusCode().value() == 404) {
-                setInactivePlayer();
+                setPlayerState(false);
                 throw new SpotifyApiException(exception.getStatusCode().value(), "No player available");
             }
             throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while playing");
@@ -149,10 +149,10 @@ public class SpotifyPlayerService {
         if (response != null &&
                 response.getDevice() != null &&
                 response.getDevice().is_active()) {
-            setActivePlayer();
+            setPlayerState(true);
             return true;
         }
-        setInactivePlayer();
+        setPlayerState(false);
         return false;
     }
 
@@ -166,21 +166,12 @@ public class SpotifyPlayerService {
         }
     }
 
-    private void setInactivePlayer() {
+    private void setPlayerState(boolean currentState) {
         String roomId = authenticationService.getRoomId();
         SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(roomId).orElseThrow(() -> {
             throw new SpotifyApiException(404, "Room not found");
         });
-        spotifyRoom.setActive(false);
-        spotifyRoomRepository.save(spotifyRoom);
-    }
-
-    private void setActivePlayer() {
-        String roomId = authenticationService.getRoomId();
-        SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(roomId).orElseThrow(() -> {
-            throw new SpotifyApiException(404, "Room not found");
-        });
-        spotifyRoom.setActive(true);
+        spotifyRoom.setActive(currentState);
         spotifyRoomRepository.save(spotifyRoom);
     }
 }
