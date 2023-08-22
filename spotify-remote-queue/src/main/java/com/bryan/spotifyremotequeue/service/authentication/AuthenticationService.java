@@ -2,6 +2,7 @@ package com.bryan.spotifyremotequeue.service.authentication;
 
 import com.bryan.spotifyremotequeue.config.security.Principal;
 import com.bryan.spotifyremotequeue.exception.RegistrationException;
+import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;
 import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
@@ -34,9 +35,19 @@ public class AuthenticationService {
     public String getAccessToken() {
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(principal.getRoomId()).orElseThrow(() -> {
-            throw new RuntimeException();
+            throw new SpotifyApiException(404, "Room not found");
         });
         return spotifyRoom.getAccessToken();
+    }
+
+    public String getRoomId() {
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return principal.getRoomId();
+    }
+
+    public String getUserId() {
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return principal.getUserId();
     }
 
     public SpotifyRoom authenticateRoomJoining(String roomId, String pin, String userId) {

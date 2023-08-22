@@ -33,6 +33,8 @@ public class SpotifyRoom {
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> users;
 
+    private boolean isActive;
+
     public SpotifyRoom(AuthenticateResponse response, String owner) {
         int targetStringLength = 6;
         Random random = new Random();
@@ -45,6 +47,7 @@ public class SpotifyRoom {
         this.owner = owner;
         this.expiry = LocalDateTime.now().plus(Duration.ofSeconds(response.getExpires_in()));
         this.users = new ArrayList<>();
+        this.isActive = false;
     }
 
 }
