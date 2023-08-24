@@ -1,11 +1,11 @@
 package com.bryan.spotifyremotequeue.service.spotify.response;
 
-import com.bryan.spotifyremotequeue.service.spotify.response.common.ExternalUrls;
-import com.bryan.spotifyremotequeue.service.spotify.response.common.Followers;
-import com.bryan.spotifyremotequeue.service.spotify.response.common.Image;
+import com.bryan.spotifyremotequeue.service.spotify.response.common.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+@JsonIgnoreProperties
 @Data
 public class SearchResponse {
 
@@ -19,11 +19,12 @@ public class SearchResponse {
 
     private Shows shows;
 
-//    private Episodes episodes; // unable to map
+    private Episodes episodes;
 
     private Audiobooks audiobooks;
 }
 
+@JsonIgnoreProperties
 @Data
 class Tracks {
     private String href;
@@ -38,137 +39,10 @@ class Tracks {
 
     private int total;
 
-    private TracksTrack[] items;
+    private TrackObject[] items;
 }
 
-@Data
-class TracksTrack {
-    private TracksTrackAlbum album;
-
-    private TracksTrackArtist[] artists;
-
-    private String[] available_markets;
-
-    private int disc_number;
-
-    private int duration_ms;
-
-    private boolean explicit;
-
-    private ExternalIds external_ids;
-
-    private ExternalUrls external_urls;
-
-    private String href;
-
-    private String id;
-
-    private boolean is_playable;
-
-    private TracksTrackLinkedFrom linked_from;
-
-    private Restrictions restrictions;
-
-    private String name;
-
-    private int popularity;
-
-    private String preview_url;
-
-    private int track_number;
-
-    private String type;
-
-    private String uri;
-
-    private boolean is_local;
-}
-
-@Data
-class TracksTrackAlbum {
-    private String album_type;
-
-    private int total_tracks;
-
-    private String[] available_markets;
-
-    private ExternalUrls external_urls;
-
-    private String href;
-
-    private String id;
-
-    private Image[] images;
-
-    private String name;
-
-    private String release_date;
-
-    private String release_date_precision;
-
-    private Restrictions restrictions;
-
-    private String type;
-
-    private String uri;
-
-    private Copyright[] copyrights;
-
-    private ExternalIds external_ids;
-
-    private String[] genres;
-
-    private String label;
-
-    private int popularity;
-
-    private String album_group;
-
-    private TracksTrackAlbumArtist[] artists;
-}
-
-@Data
-class TracksTrackAlbumArtist {
-    private ExternalUrls external_urls;
-
-    private String href;
-
-    private String id;
-
-    private String name;
-
-    private String type;
-
-    private String uri;
-}
-
-@Data
-class TracksTrackArtist {
-    private ExternalUrls external_urls;
-
-    private Followers followers;
-
-    private String[] genres;
-
-    private String href;
-
-    private String id;
-
-    private Image[] images;
-
-    private String name;
-
-    private int popularity;
-
-    private String type;
-
-    private String uri;
-}
-
-@Data
-class TracksTrackLinkedFrom {
-}
-
+@JsonIgnoreProperties
 @Data
 class Artists {
     private String href;
@@ -186,6 +60,7 @@ class Artists {
     private ArtistsArtist[] items;
 }
 
+@JsonIgnoreProperties
 @Data
 class ArtistsArtist {
     private ExternalUrls external_urls;
@@ -209,6 +84,7 @@ class ArtistsArtist {
     private String uri;
 }
 
+@JsonIgnoreProperties
 @Data
 class Albums {
 
@@ -227,10 +103,12 @@ class Albums {
     private AlbumsAlbum[] items;
 }
 
+@JsonIgnoreProperties
 @Data
 class AlbumsAlbum {
+    @JsonProperty("album_type")
     private String album_type;
-
+    @JsonProperty("total_tracks")
     private int total_tracks;
 
     private String[] available_markets;
@@ -244,9 +122,9 @@ class AlbumsAlbum {
     private Image[] images;
 
     private String name;
-
+    @JsonProperty("release_date")
     private String release_date;
-
+    @JsonProperty("release_date_precision")
     private String release_date_precision;
 
     private Restrictions restrictions;
@@ -264,7 +142,7 @@ class AlbumsAlbum {
     private String label;
 
     private int popularity;
-
+    @JsonProperty("album_group")
     private String album_group;
 
     private AlbumsAlbumArtist[] artists;
@@ -272,6 +150,7 @@ class AlbumsAlbum {
 
 }
 
+@JsonIgnoreProperties
 @Data
 class AlbumsAlbumArtist {
     private ExternalUrls external_urls;
@@ -287,6 +166,7 @@ class AlbumsAlbumArtist {
     private String uri;
 }
 
+@JsonIgnoreProperties
 @Data
 class Playlists {
     private String href;
@@ -304,6 +184,7 @@ class Playlists {
     private PlaylistsPlaylist[] items;
 }
 
+@JsonIgnoreProperties
 @Data
 class PlaylistsPlaylist {
     private boolean collaborative;
@@ -324,7 +205,7 @@ class PlaylistsPlaylist {
 
     @JsonProperty("public")
     private boolean isPublic;
-
+    @JsonProperty("snapshot_id")
     private String snapshot_id;
 
     private PlaylistsPlaylistTrack tracks;
@@ -334,6 +215,7 @@ class PlaylistsPlaylist {
     private String uri;
 }
 
+@JsonIgnoreProperties
 @Data
 class PlaylistsPlaylistOwner {
     private ExternalUrls external_urls;
@@ -347,10 +229,11 @@ class PlaylistsPlaylistOwner {
     private String type;
 
     private String uri;
-
+    @JsonProperty("display_name")
     private String display_name;
 }
 
+@JsonIgnoreProperties
 @Data
 class PlaylistsPlaylistTrack {
     private String href;
@@ -358,6 +241,7 @@ class PlaylistsPlaylistTrack {
     private int total;
 }
 
+@JsonIgnoreProperties
 @Data
 class Shows {
     private String href;
@@ -377,6 +261,7 @@ class Shows {
 
 }
 
+@JsonIgnoreProperties
 @Data
 class ShowsShow {
     private String[] available_markets;
@@ -384,7 +269,7 @@ class ShowsShow {
     private Copyright[] copyrights;
 
     private String description;
-
+    @JsonProperty("html_description")
     private String html_description;
 
     private boolean explicit;
@@ -396,11 +281,11 @@ class ShowsShow {
     private String id;
 
     private Image[] images;
-
+    @JsonProperty("is_externally_hosted")
     private boolean is_externally_hosted;
 
     private String[] languages;
-
+    @JsonProperty("media_type")
     private String media_type;
 
     private String name;
@@ -410,77 +295,83 @@ class ShowsShow {
     private String type;
 
     private String uri;
-
+    @JsonProperty("total_episodes")
     private int total_episodes;
 }
 
-//@Data
-//class Episodes {
-//    private String href;
-//
-//    private int limit;
-//
-//    private String next;
-//
-//    private int offset;
-//
-//    private String previous;
-//
-//    private int total;
-//
-//    private EpisodesEpisode[] items;
-//}
-//
-//@Data
-//class EpisodesEpisode {
-//    private String audio_preview_url;
-//
-//    private String description;
-//
-//    private String html_description;
-//
-//    private int duration_ms;
-//
-//    private boolean explicit;
-//
-//    private ExternalUrls external_urls;
-//
-//    private String href;
-//
-//    private String id;
-//
-//    private Image[] images;
-//
-//    private boolean is_externally_hosted;
-//
-//    private boolean is_playable;
-//
-//    private String language;
-//
-//    private String[] languages;
-//
-//    private String name;
-//
-//    private String release_date;
-//
-//    private String release_date_precision;
-//
-//    private EpisodesEpisodeResumePoint resume_point;
-//
-//    private String type;
-//
-//    private String uri;
-//
-//    private Restrictions restrictions;
-//}
-//
-//@Data
-//class EpisodesEpisodeResumePoint {
-//    private boolean fully_played;
-//
-//    private int resume_position_ms;
-//}
+@JsonIgnoreProperties
+@Data
+class Episodes {
+    private String href;
 
+    private int limit;
+
+    private String next;
+
+    private int offset;
+
+    private String previous;
+
+    private int total;
+
+    private EpisodesEpisode[] items;
+}
+
+@JsonIgnoreProperties
+@Data
+class EpisodesEpisode {
+    @JsonProperty("audio_preview_url")
+    private String audio_preview_url;
+
+    private String description;
+    @JsonProperty("html_description")
+    private String html_description;
+    @JsonProperty("duration_ms")
+    private long duration_ms;
+
+    private boolean explicit;
+
+    private ExternalUrls external_urls;
+
+    private String href;
+
+    private String id;
+
+    private Image[] images;
+    @JsonProperty("is_externally_hosted")
+    private boolean is_externally_hosted;
+    @JsonProperty("is_playable")
+    private boolean is_playable;
+
+    private String language;
+
+    private String[] languages;
+
+    private String name;
+    @JsonProperty("release_date")
+    private String release_date;
+    @JsonProperty("release_date_precision")
+    private String release_date_precision;
+
+    private EpisodesEpisodeResumePoint resume_point;
+
+    private String type;
+
+    private String uri;
+
+    private Restrictions restrictions;
+}
+
+@JsonIgnoreProperties
+@Data
+class EpisodesEpisodeResumePoint {
+    @JsonProperty("fully_played")
+    private boolean fully_played;
+    @JsonProperty("resume_position_ms")
+    private long resume_position_ms;
+}
+
+@JsonIgnoreProperties
 @Data
 class Audiobooks {
     private String href;
@@ -498,6 +389,7 @@ class Audiobooks {
     private AudiobooksAudiobook[] items;
 }
 
+@JsonIgnoreProperties
 @Data
 class AudiobooksAudiobook {
     private AudiobooksAudiobookAuthor[] authors;
@@ -507,7 +399,7 @@ class AudiobooksAudiobook {
     private Copyright[] copyrights;
 
     private String description;
-
+    @JsonProperty("html_description")
     private String html_description;
 
     private String edition;
@@ -523,7 +415,7 @@ class AudiobooksAudiobook {
     private Image[] images;
 
     private String[] languages;
-
+    @JsonProperty("media_type")
     private String media_type;
 
     private String name;
@@ -535,38 +427,19 @@ class AudiobooksAudiobook {
     private String type;
 
     private String uri;
-
+    @JsonProperty("total_chapters")
     private int total_chapters;
 }
 
+@JsonIgnoreProperties
 @Data
 class AudiobooksAudiobookAuthor {
     private String name;
 }
 
+@JsonIgnoreProperties
 @Data
 class AudiobooksAudiobookNarrator {
     private String name;
 }
 
-// common
-@Data
-class ExternalIds {
-    private String isrc;
-
-    private String ean;
-
-    private String upc;
-}
-
-@Data
-class Restrictions {
-    private String reason;
-}
-
-@Data
-class Copyright {
-    private String text;
-
-    private String type;
-}

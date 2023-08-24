@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .csrf((csrf) -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/v1/spotify/registerRoom", "/api/v1/spotify/registerUser").permitAll()
+                        .requestMatchers("/api/v1/spotify/register/room", "/api/v1/spotify/register/user").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtTokenValidatorFilter, BasicAuthenticationFilter.class);
 

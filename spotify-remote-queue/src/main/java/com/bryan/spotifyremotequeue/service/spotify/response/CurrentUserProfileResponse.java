@@ -3,11 +3,15 @@ package com.bryan.spotifyremotequeue.service.spotify.response;
 import com.bryan.spotifyremotequeue.service.spotify.response.common.ExternalUrls;
 import com.bryan.spotifyremotequeue.service.spotify.response.common.Followers;
 import com.bryan.spotifyremotequeue.service.spotify.response.common.Image;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+@JsonIgnoreProperties
 @Data
 public class CurrentUserProfileResponse {
     private String country;
+    @JsonProperty("display_name")
     private String display_name;
     private String email;
     private ExplicitContent explicit_content;
@@ -21,8 +25,11 @@ public class CurrentUserProfileResponse {
     private String uri;
 }
 
+@JsonIgnoreProperties
 @Data
 class ExplicitContent {
+    @JsonProperty("filter_enabled")
     private boolean filter_enabled;
+    @JsonProperty("filter_locked")
     private boolean filter_locked;
 }

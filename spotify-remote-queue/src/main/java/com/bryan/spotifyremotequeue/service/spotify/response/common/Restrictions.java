@@ -5,10 +5,7 @@ import lombok.Data;
 
 @JsonIgnoreProperties
 @Data
-public class Image {
-    private String url;
-
-    private int height;
-
-    private int width;
+public
+class Restrictions {
+    private String reason;
 }

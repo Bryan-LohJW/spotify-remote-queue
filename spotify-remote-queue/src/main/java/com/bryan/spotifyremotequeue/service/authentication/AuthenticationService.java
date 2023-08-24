@@ -1,5 +1,8 @@
 package com.bryan.spotifyremotequeue.service.authentication;
 
+import com.bryan.spotifyremotequeue.config.security.Principal;
+import com.bryan.spotifyremotequeue.exception.RegistrationException;
+import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.model.User;
 import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
@@ -8,8 +11,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -17,8 +22,6 @@ import java.util.*;
 
 @Service
 public class AuthenticationService {
-
-    // this service is to generate tokens when user registers
 
     @Autowired
     private SpotifyRoomRepository spotifyRoomRepository;
@@ -29,14 +32,36 @@ public class AuthenticationService {
     @Value("${jwt.secretKey}")
     private String SECRET_KEY;
 
-    public boolean authenticateRoomJoining(String roomId, String pin) {
+    public String getAccessToken() {
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(principal.getRoomId()).orElseThrow(() -> {
+            throw new SpotifyApiException(404, "Room not found");
+        });
+        return spotifyRoom.getAccessToken();
+    }
+
+    public String getRoomId() {
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return principal.getRoomId();
+    }
+
+    public String getUserId() {
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return principal.getUserId();
+    }
+
+    public SpotifyRoom authenticateRoomJoining(String roomId, String pin, String userId) {
         SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(roomId).orElseThrow(() -> {
-            throw new BadCredentialsException("Invalid room");
+            throw new RegistrationException("Invalid room id", HttpStatus.BAD_REQUEST);
         });
         if (!spotifyRoom.getPin().equals(pin)) {
-            throw new BadCredentialsException("Invalid pin");
+            throw new RegistrationException("Invalid pin", HttpStatus.BAD_REQUEST);
         }
-        return true;
+        Optional<User> optionalUser = userRepository.findByUserIdAndRoomId(userId, roomId);
+        if (optionalUser.isPresent()) {
+            throw new RegistrationException("Username taken", HttpStatus.BAD_REQUEST);
+        }
+        return spotifyRoom;
     }
 
     public String generateToken(User user) {

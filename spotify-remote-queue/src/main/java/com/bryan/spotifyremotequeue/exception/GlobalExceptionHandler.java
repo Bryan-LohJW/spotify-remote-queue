@@ -13,9 +13,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SpotifyApiException.class)
     public ResponseEntity<ErrorDetails> handleAuthenticateException(SpotifyApiException exception) {
         ErrorDetails errorDetails = new ErrorDetails(
-                LocalDateTime.now(),
-                exception.getMessage(),
-                "AUTHENTICATION_EXCEPTION"
+                exception.getMessage()
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
@@ -23,9 +21,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RegistrationException.class)
     public ResponseEntity<ErrorDetails> handleRegistrationException(RegistrationException exception) {
         ErrorDetails errorDetails = new ErrorDetails(
-                LocalDateTime.now(),
-                exception.getMessage(),
-                "REGISTRATION_EXCEPTION"
+                exception.getMessage()
         );
         return new ResponseEntity<>(errorDetails, exception.getStatus());
     }
@@ -33,9 +29,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SpotifySearchException.class)
     public ResponseEntity<ErrorDetails> handleSpotifySearchException(SpotifySearchException exception) {
         ErrorDetails errorDetails = new ErrorDetails(
-                LocalDateTime.now(),
-                exception.getMessage(),
-                "SEARCH_EXCEPTION"
+                exception.getMessage()
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -43,8 +37,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleAllException(Exception exception) {
         System.out.println(exception);
-        return new ResponseEntity<>(new ErrorDetails(LocalDateTime.now(),
-                exception.getMessage(),
-                "INTERNAL_SERVER_ERROR"), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ErrorDetails(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
