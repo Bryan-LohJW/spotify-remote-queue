@@ -5,7 +5,7 @@ const SpotifyResponse = () => {
 
 	const fetchFunction = async (spotifyCode: string) => {
 		const response = await fetch(
-			'http://localhost:8080/api/v1/spotify/registerRoom',
+			'http://localhost:8080/api/v1/spotify/register/room',
 			{
 				method: 'POST',
 				headers: {
@@ -40,7 +40,7 @@ const SpotifyResponse = () => {
 	};
 
 	const fetchSearch = async (search: string) => {
-		const url = 'http://localhost:8080/api/v1/spotify/search';
+		const url = 'http://localhost:8080/api/v1/spotify/search/all';
 
 		const searchQuery = '?query=' + search.trim();
 		const response = await fetch(url + searchQuery, {
@@ -60,7 +60,7 @@ const SpotifyResponse = () => {
 		pin: string,
 		userId: string
 	) => {
-		const url = 'http://localhost:8080/api/v1/spotify/registerUser';
+		const url = 'http://localhost:8080/api/v1/spotify/register/user';
 
 		const response = await fetch(url, {
 			method: 'POST',
@@ -80,7 +80,7 @@ const SpotifyResponse = () => {
 	};
 
 	const fetchAddToQueue = async (addToQueueInput: string) => {
-		const url = 'http://localhost:8080/api/v1/spotify/addToQueue';
+		const url = 'http://localhost:8080/api/v1/spotify/player/add';
 
 		const response = await fetch(url, {
 			method: 'POST',
@@ -92,6 +92,66 @@ const SpotifyResponse = () => {
 			body: JSON.stringify({
 				itemUri: addToQueueInput,
 			}),
+		});
+		const body = await response.json();
+		console.log(body);
+	};
+
+	const fetchNext = async () => {
+		const url = 'http://localhost:8080/api/v1/spotify/player/next';
+
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
+				'Content-Type': 'application/json',
+				Authorization: accessToken,
+			},
+		});
+		const body = await response.json();
+		console.log(body);
+	};
+
+	const fetchPlay = async () => {
+		const url = 'http://localhost:8080/api/v1/spotify/player/play';
+
+		const response = await fetch(url, {
+			method: 'PUT',
+			headers: {
+				'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
+				'Content-Type': 'application/json',
+				Authorization: accessToken,
+			},
+		});
+		const body = await response.json();
+		console.log(body);
+	};
+
+	const fetchPause = async () => {
+		const url = 'http://localhost:8080/api/v1/spotify/player/pause';
+
+		const response = await fetch(url, {
+			method: 'PUT',
+			headers: {
+				'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
+				'Content-Type': 'application/json',
+				Authorization: accessToken,
+			},
+		});
+		const body = await response.json();
+		console.log(body);
+	};
+
+	const fetchPlaybackState = async () => {
+		const url = 'http://localhost:8080/api/v1/spotify/player';
+
+		const response = await fetch(url, {
+			method: 'GET',
+			headers: {
+				'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
+				'Content-Type': 'application/json',
+				Authorization: accessToken,
+			},
 		});
 		const body = await response.json();
 		console.log(body);
@@ -151,7 +211,7 @@ const SpotifyResponse = () => {
 				<input type="text" placeholder="Room Id" id="roomIdInput" />
 				<input type="text" placeholder="Pin" id="pinInput" />
 				<input type="text" placeholder="Name" id="userIdInput" />
-				<button type="submit">Search</button>
+				<button type="submit">Register User</button>
 			</form>
 			<form
 				onSubmit={(e) => {
@@ -168,8 +228,36 @@ const SpotifyResponse = () => {
 					placeholder="TrackUri"
 					id="addToQueueInput"
 				/>
-				<button type="submit">Search</button>
+				<button type="submit">Add Track</button>
 			</form>
+			<button
+				onClick={() => {
+					fetchNext();
+				}}
+			>
+				Next
+			</button>
+			<button
+				onClick={() => {
+					fetchPlay();
+				}}
+			>
+				Play
+			</button>
+			<button
+				onClick={() => {
+					fetchPause();
+				}}
+			>
+				Pause
+			</button>
+			<button
+				onClick={() => {
+					fetchPlaybackState();
+				}}
+			>
+				Playback State
+			</button>
 		</>
 	);
 };
