@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
 
 const SpotifyResponse = () => {
-	const [accessToken, setAccessToken] = useState('');
+	const accessTokenState = useSelector(
+		(state: RootState) => state.authentication.jwt
+	);
+	const accessToken = 'Bearer ' + accessTokenState;
 
 	const fetchFunction = async (spotifyCode: string) => {
 		const response = await fetch(
@@ -19,7 +23,6 @@ const SpotifyResponse = () => {
 		);
 
 		const body = await response.json();
-		setAccessToken(response.headers.get('Authorization') || '');
 		console.log(body);
 	};
 

@@ -20,10 +20,12 @@ export type RoomInformation = {
 const Home = () => {
 	const { register, handleSubmit } = useForm<Inputs>();
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
+	const [searchParams] = useSearchParams();
+
 	const onSubmit: SubmitHandler<Inputs> = (data) => {
 		navigate(`/room/${data.roomId.trim()}`);
 	};
-	const dispatch = useDispatch();
 
 	const inputState = 'HARDCODE';
 	const spotifyOauth = `https://accounts.spotify.com/authorize
@@ -33,8 +35,6 @@ const Home = () => {
 	&scope=${import.meta.env.VITE_SPOTIFY_AUTHORITY_SCOPE}
 	&state=${inputState}
 	&show_dialog=true`;
-
-	const [searchParams] = useSearchParams();
 
 	useEffect(() => {
 		const registerRoom = async (code: string) => {
@@ -72,7 +72,7 @@ const Home = () => {
 	}, [searchParams, dispatch, navigate]);
 
 	return (
-		<div className="h-screen bg-gray-900">
+		<div>
 			<p className="text-2xl text-white">Remote Queue For Spotify</p>
 			<form
 				onSubmit={handleSubmit(onSubmit)}
