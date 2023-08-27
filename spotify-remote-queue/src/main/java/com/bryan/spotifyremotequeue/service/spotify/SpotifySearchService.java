@@ -19,14 +19,16 @@ public class SpotifySearchService {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Autowired
+    private WebClient webClient;
+
     public SearchResponse search(String query) throws SpotifyApiException {
         String searchUri = generateSearchUri(query);
-        WebClient.Builder builder = WebClient.builder();
         String accessToken = authenticationService.getAccessToken();
         SearchResponse response = null;
         try {
             response =
-                    builder.build()
+                    webClient
                             .get()
                             .uri(searchUri)
                             .header("Authorization", "Bearer " + accessToken)
