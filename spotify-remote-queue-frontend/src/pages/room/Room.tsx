@@ -5,6 +5,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
 import { saveInformation } from '../../store/slice/roomInformationSlice';
 import { RoomInformation } from '../home/Home';
+import Search from '../../components/search/Search';
 
 type Inputs = {
 	roomId: string;
@@ -25,7 +26,6 @@ const Room = () => {
 
 	const onSubmit: SubmitHandler<Inputs> = async (data) => {
 		const url = 'http://localhost:8080/api/v1/spotify/register/user';
-		console.log(data);
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -38,6 +38,9 @@ const Room = () => {
 				roomId: roomId,
 			}),
 		});
+		if (!response.ok) {
+			return;
+		}
 		const body = (await response.json()) as RoomInformation;
 		body.roomId = roomId || '';
 		body.pin = data.pin;
@@ -89,7 +92,7 @@ const Room = () => {
 				<p className="text-white">Welcome {userId}</p>
 				<p className="text-white">{roomInformation.roomId}</p>
 				<p className="text-white">{roomInformation.pin}</p>
-				<Link to="/spotify-response">Hello</Link>
+				<Search></Search>
 			</div>
 		);
 	}
