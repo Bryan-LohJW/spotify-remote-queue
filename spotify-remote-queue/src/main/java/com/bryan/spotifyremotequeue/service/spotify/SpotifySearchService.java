@@ -1,7 +1,6 @@
 package com.bryan.spotifyremotequeue.service.spotify;
 
 import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
-import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
 import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
 import com.bryan.spotifyremotequeue.service.spotify.response.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
