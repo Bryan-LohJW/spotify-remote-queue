@@ -4,6 +4,7 @@ import { RootState } from '../../store/store';
 import { TracksTrack, type SearchResponse } from '../../types/SearchResponse';
 import { useState } from 'react';
 import Track from '../spotifyItems/Track';
+import { BiSearch } from 'react-icons/bi';
 
 type Inputs = {
 	title: string;
@@ -32,18 +33,27 @@ const Search = () => {
 
 	return (
 		<div>
-			<form onSubmit={handleSubmit(onSubmit)}>
-				<div>
-					<input
-						type="text"
-						{...register('title', { required: true })}
-					/>
-					<button>Search</button>
-				</div>
+			<p className="mx-auto w-fit text-2xl text-white">
+				Search for songs
+			</p>
+			<div className="h-4"></div>
+			<form
+				onSubmit={handleSubmit(onSubmit)}
+				className="mx-auto flex w-fit"
+			>
+				<input
+					type="text"
+					{...register('title', { required: true })}
+					className="rounded-3xl bg-gray-700 px-5 py-3 text-white"
+				/>
+				<button>
+					<BiSearch className="h-8 w-8 text-white"></BiSearch>
+				</button>
 			</form>
+			<div className="h-4"></div>
 			<div>
 				{tracks?.map((track) => (
-					<Track track={track}></Track>
+					<Track track={track} key={track.id}></Track>
 				))}
 			</div>
 		</div>

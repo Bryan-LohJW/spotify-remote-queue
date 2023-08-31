@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { saveInformation } from '../../store/slice/roomInformationSlice';
 import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
+import spotifyLogoUrl from './../../assets/images/spotify-logo.png';
 
 type Inputs = {
 	roomId: string;
@@ -73,7 +74,19 @@ const Home = () => {
 
 	return (
 		<div>
-			<p className="text-2xl text-white">Remote Queue For Spotify</p>
+			<div className="h-20"></div>
+			<p className="mx-auto w-3/4 text-center text-3xl text-white">
+				Remote Queue For
+				<img src={spotifyLogoUrl} className="mx-auto w-1/2" />
+			</p>
+			<div className="h-20"></div>
+			<a
+				className="mx-auto flex w-64 items-center justify-center gap-2 rounded-md bg-green-500 py-3 text-white"
+				href={spotifyOauth}
+			>
+				<BsSpotify className="h-6 w-6"></BsSpotify>Log in with Spotify
+			</a>
+			<p className="mx-auto w-fit text-white">OR</p>
 			<form
 				onSubmit={handleSubmit(onSubmit)}
 				className="mx-auto flex w-64 bg-gray-500"
@@ -87,12 +100,6 @@ const Home = () => {
 					Enter
 				</button>
 			</form>
-			<a
-				className="mx-auto flex w-64 items-center justify-center gap-2 rounded-md bg-green-500 py-3 text-white"
-				href={spotifyOauth}
-			>
-				<BsSpotify className="h-6 w-6"></BsSpotify>Log in with Spotify
-			</a>
 		</div>
 	);
 };

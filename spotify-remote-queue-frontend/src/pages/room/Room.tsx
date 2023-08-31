@@ -6,6 +6,7 @@ import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
 import { saveInformation } from '../../store/slice/roomInformationSlice';
 import { RoomInformation } from '../home/Home';
 import Search from '../../components/search/Search';
+import Header from '../../components/room/Header';
 
 type Inputs = {
 	roomId: string;
@@ -89,9 +90,12 @@ const Room = () => {
 	if (isAuthenticated) {
 		display = (
 			<div>
-				<p className="text-white">Welcome {userId}</p>
-				<p className="text-white">{roomInformation.roomId}</p>
-				<p className="text-white">{roomInformation.pin}</p>
+				<Header
+					name={userId}
+					roomId={roomInformation.roomId}
+					pin={roomInformation.pin}
+				></Header>
+				<div className="h-20"></div>
 				<Search></Search>
 			</div>
 		);
