@@ -13,7 +13,6 @@ const Track = (props: Props) => {
 	const [isAdded, setIsAdded] = useState(false);
 
 	const accessToken = 'Bearer ' + jwt;
-	const color = isAdded ? 'text-grey-600' : 'text-white';
 
 	const addSongToQueue = async (trackId: string) => {
 		const url = 'http://localhost:8080/api/v1/spotify/player/add';

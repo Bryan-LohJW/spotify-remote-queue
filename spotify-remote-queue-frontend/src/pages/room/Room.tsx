@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import type { RootState } from '../../store/store';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
