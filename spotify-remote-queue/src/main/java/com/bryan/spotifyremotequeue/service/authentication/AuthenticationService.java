@@ -12,8 +12,10 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -66,16 +68,23 @@ public class AuthenticationService {
 
     public String generateToken(User user) {
         SecretKey key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        String userId = user.getUserId();
+        String roomId = user.getRoom().getRoomId();
+        String authorities = populateAuthorities(user.getAuthorities());
         String jwt = Jwts.builder()
                 .setIssuer("Remote queue for spotify")
                 .setSubject("JWT Token")
-                .claim("username", user.getUserId())
-                .claim("roomId", user.getRoom().getRoomId())
-                .claim("authorities", populateAuthorities(user.getAuthorities()))
+                .claim("username", userId)
+                .claim("roomId", roomId)
+                .claim("authorities", authorities)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + 3600000))
                 .signWith(key)
                 .compact();
+
+        Principal principal = new Principal(user.getUserId(), user.getRoom().getRoomId());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwt;
     }
 

@@ -1,7 +1,6 @@
 package com.bryan.spotifyremotequeue.service.spotify;
 
 import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
-import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
 import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
 import com.bryan.spotifyremotequeue.service.spotify.response.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +18,16 @@ public class SpotifySearchService {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Autowired
+    private WebClient webClient;
+
     public SearchResponse search(String query) throws SpotifyApiException {
         String searchUri = generateSearchUri(query);
-        WebClient.Builder builder = WebClient.builder();
         String accessToken = authenticationService.getAccessToken();
         SearchResponse response = null;
         try {
             response =
-                    builder.build()
+                    webClient
                             .get()
                             .uri(searchUri)
                             .header("Authorization", "Bearer " + accessToken)
