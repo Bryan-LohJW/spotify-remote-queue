@@ -16,7 +16,8 @@ const Header = (props: Props) => {
 					className="h-6 w-6"
 					onClick={() => {
 						navigator.clipboard.writeText(
-							`localhost:5173/room/${props.roomId}`
+							import.meta.env.VITE_BASE_URI +
+								`/room/${props.roomId}`
 						);
 					}}
 				></IoShareOutline>

@@ -30,7 +30,7 @@ const Home = () => {
 	const inputState = 'HARDCODE';
 	const spotifyOauth = `https://accounts.spotify.com/authorize
 	?client_id=${import.meta.env.VITE_SPOTIFY_CLIENT_ID}
-	&redirect_uri=${import.meta.env.VITE_SPOTIFY_REDIRECT_URI}
+	&redirect_uri=${import.meta.env.VITE_BASE_URI}
 	&response_type=${import.meta.env.VITE_SPOTIFY_RESPONSE_TYPE}
 	&scope=${import.meta.env.VITE_SPOTIFY_AUTHORITY_SCOPE}
 	&state=${inputState}
@@ -39,7 +39,8 @@ const Home = () => {
 	useEffect(() => {
 		const registerRoom = async (code: string) => {
 			const response = await fetch(
-				'http://localhost:8080/api/v1/spotify/register/room',
+				import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+					'/api/v1/spotify/register/room',
 				{
 					method: 'POST',
 					headers: {

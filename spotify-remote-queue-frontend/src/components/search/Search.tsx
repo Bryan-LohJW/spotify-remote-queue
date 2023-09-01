@@ -16,7 +16,9 @@ const Search = () => {
 	const { jwt } = useSelector((state: RootState) => state.authentication);
 	const accessToken = 'Bearer ' + jwt;
 	const onSubmit = async (data: Inputs) => {
-		const url = 'http://localhost:8080/api/v1/spotify/search/all';
+		const url =
+			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+			'/api/v1/spotify/search/all';
 
 		const searchQuery = '?query=' + data.title.trim();
 		const response = await fetch(url + searchQuery, {

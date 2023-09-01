@@ -26,7 +26,9 @@ const Room = () => {
 	);
 
 	const onSubmit: SubmitHandler<Inputs> = async (data) => {
-		const url = 'http://localhost:8080/api/v1/spotify/register/user';
+		const url =
+			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+			'/api/v1/spotify/register/user';
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
