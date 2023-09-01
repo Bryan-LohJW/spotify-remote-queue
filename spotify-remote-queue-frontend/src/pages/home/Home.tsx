@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { saveInformation } from '../../store/slice/roomInformationSlice';
 import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
-import spotifyLogoUrl from './../../assets/images/spotify-logo.png';
 
 type Inputs = {
 	roomId: string;
@@ -77,7 +76,10 @@ const Home = () => {
 			<div className="h-20"></div>
 			<p className="mx-auto w-3/4 text-center text-3xl text-white">
 				Remote Queue For
-				<img src={spotifyLogoUrl} className="mx-auto w-1/2" />
+				<img
+					src={'/public/assets/images/spotify-logo.png'}
+					className="mx-auto w-1/2"
+				/>
 			</p>
 			<div className="h-20"></div>
 			<a
