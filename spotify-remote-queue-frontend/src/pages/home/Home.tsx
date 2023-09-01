@@ -78,7 +78,7 @@ const Home = () => {
 			<p className="mx-auto w-3/4 text-center text-3xl text-white">
 				Remote Queue For
 				<img
-					src={'/public/assets/images/spotify-logo.png'}
+					src={'/assets/images/spotify-logo.png'}
 					className="mx-auto w-1/2"
 				/>
 			</p>
