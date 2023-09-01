@@ -83,7 +83,9 @@ const SpotifyResponse = () => {
 	};
 
 	const fetchAddToQueue = async (addToQueueInput: string) => {
-		const url = 'http://localhost:8080/api/v1/spotify/player/add';
+		const url =
+			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+			'/api/v1/spotify/player/add';
 
 		const response = await fetch(url, {
 			method: 'POST',
@@ -101,7 +103,9 @@ const SpotifyResponse = () => {
 	};
 
 	const fetchNext = async () => {
-		const url = 'http://localhost:8080/api/v1/spotify/player/next';
+		const url =
+			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+			'/api/v1/spotify/player/next';
 
 		const response = await fetch(url, {
 			method: 'POST',
@@ -116,7 +120,9 @@ const SpotifyResponse = () => {
 	};
 
 	const fetchPlay = async () => {
-		const url = 'http://localhost:8080/api/v1/spotify/player/play';
+		const url =
+			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+			'/api/v1/spotify/player/play';
 
 		const response = await fetch(url, {
 			method: 'PUT',
@@ -131,7 +137,9 @@ const SpotifyResponse = () => {
 	};
 
 	const fetchPause = async () => {
-		const url = 'http://localhost:8080/api/v1/spotify/player/pause';
+		const url =
+			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+			'/api/v1/spotify/player/pause';
 
 		const response = await fetch(url, {
 			method: 'PUT',
@@ -146,7 +154,9 @@ const SpotifyResponse = () => {
 	};
 
 	const fetchPlaybackState = async () => {
-		const url = 'http://localhost:8080/api/v1/spotify/player';
+		const url =
+			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+			'/api/v1/spotify/player';
 
 		const response = await fetch(url, {
 			method: 'GET',

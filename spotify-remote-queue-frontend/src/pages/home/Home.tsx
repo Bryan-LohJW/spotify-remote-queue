@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { saveInformation } from '../../store/slice/roomInformationSlice';
 import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
-import spotifyLogoUrl from './../../assets/images/spotify-logo.png';
 
 type Inputs = {
 	roomId: string;
@@ -31,7 +30,7 @@ const Home = () => {
 	const inputState = 'HARDCODE';
 	const spotifyOauth = `https://accounts.spotify.com/authorize
 	?client_id=${import.meta.env.VITE_SPOTIFY_CLIENT_ID}
-	&redirect_uri=${import.meta.env.VITE_SPOTIFY_REDIRECT_URI}
+	&redirect_uri=${import.meta.env.VITE_BASE_URI}
 	&response_type=${import.meta.env.VITE_SPOTIFY_RESPONSE_TYPE}
 	&scope=${import.meta.env.VITE_SPOTIFY_AUTHORITY_SCOPE}
 	&state=${inputState}
@@ -40,7 +39,8 @@ const Home = () => {
 	useEffect(() => {
 		const registerRoom = async (code: string) => {
 			const response = await fetch(
-				'http://localhost:8080/api/v1/spotify/register/room',
+				import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+					'/api/v1/spotify/register/room',
 				{
 					method: 'POST',
 					headers: {
@@ -77,7 +77,10 @@ const Home = () => {
 			<div className="h-20"></div>
 			<p className="mx-auto w-3/4 text-center text-3xl text-white">
 				Remote Queue For
-				<img src={spotifyLogoUrl} className="mx-auto w-1/2" />
+				<img
+					src={'/assets/images/spotify-logo.png'}
+					className="mx-auto w-1/2"
+				/>
 			</p>
 			<div className="h-20"></div>
 			<a

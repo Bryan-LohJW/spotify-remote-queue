@@ -44,14 +44,14 @@ public class SpotifyRegisterService {
     @Value("${spotify.authorizationHeader}")
     private String authorizationHeader;
 
-    @Value("${spotify.redirectUri}")
-    private String redirectUri;
+    @Value("${frontendUri}")
+    private String FRONTEND_URI;
 
     @Transactional
     public User registerRoom(RegisterRoomRequest request) throws SpotifyApiException {
         MultiValueMap<String, String> bodyValues = new LinkedMultiValueMap<>();
         bodyValues.add(SpotifyConstants.CODE, request.getCode());
-        bodyValues.add(SpotifyConstants.REDIRECT_URI, redirectUri);
+        bodyValues.add(SpotifyConstants.REDIRECT_URI, FRONTEND_URI);
         bodyValues.add(SpotifyConstants.GRANT_TYPE, SpotifyConstants.AUTHORIZATION_CODE);
 
         WebClient.Builder builder = WebClient.builder();

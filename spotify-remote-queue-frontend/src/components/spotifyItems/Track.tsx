@@ -15,7 +15,9 @@ const Track = (props: Props) => {
 	const accessToken = 'Bearer ' + jwt;
 
 	const addSongToQueue = async (trackId: string) => {
-		const url = 'http://localhost:8080/api/v1/spotify/player/add';
+		const url =
+			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
+			'/api/v1/spotify/player/add';
 
 		const response = await fetch(url, {
 			method: 'POST',
