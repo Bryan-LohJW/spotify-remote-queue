@@ -1,8 +1,8 @@
-import { BsSpotify } from 'react-icons/bs';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { BsSpotify } from 'react-icons/bs';
 import { saveInformation } from '../../store/slice/roomInformationSlice';
 import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
 
@@ -74,35 +74,40 @@ const Home = () => {
 
 	return (
 		<div>
-			<div className="h-20"></div>
-			<p className="mx-auto w-3/4 text-center text-3xl text-white">
+			<p className="mx-auto mt-20 w-fit text-center text-3xl text-white md:flex md:items-center md:gap-4">
 				Remote Queue For
 				<img
 					src={'/assets/images/spotify-logo.png'}
-					className="mx-auto w-1/2"
+					className="mx-auto my-5 w-52"
 				/>
 			</p>
-			<div className="h-20"></div>
-			<a
-				className="mx-auto flex w-64 items-center justify-center gap-2 rounded-md bg-green-500 py-3 text-white"
-				href={spotifyOauth}
-			>
-				<BsSpotify className="h-6 w-6"></BsSpotify>Log in with Spotify
-			</a>
-			<p className="mx-auto w-fit text-white">OR</p>
-			<form
-				onSubmit={handleSubmit(onSubmit)}
-				className="mx-auto flex w-64 bg-gray-500"
-			>
-				<input
-					type="text"
-					placeholder="Room Session Number"
-					{...register('roomId', { required: true })}
-				/>
-				<button type="submit" className="text-center">
-					Enter
-				</button>
-			</form>
+			<div className="my-20 flex flex-col gap-2">
+				<a
+					className="mx-auto flex h-14 w-64 items-center justify-center gap-2 rounded-md bg-green-500 py-3 text-white"
+					href={spotifyOauth}
+				>
+					<BsSpotify className="h-6 w-6"></BsSpotify>
+					Log in with Spotify
+				</a>
+				<p className="mx-auto w-fit text-2xl text-white">OR</p>
+				<form
+					onSubmit={handleSubmit(onSubmit)}
+					className="mx-auto flex w-64 flex-col gap-4"
+				>
+					<input
+						type="text"
+						placeholder="Room Number"
+						className="rounded-md p-1"
+						{...register('roomId', { required: true })}
+					/>
+					<button
+						type="submit"
+						className="mx-auto h-10 w-32 rounded-md bg-green-500 text-center text-white"
+					>
+						Enter
+					</button>
+				</form>
+			</div>
 		</div>
 	);
 };
