@@ -92,11 +92,22 @@ const Room = () => {
 	if (isAuthenticated) {
 		display = (
 			<div>
-				<Header
-					name={userId}
-					roomId={roomInformation.roomId}
-					pin={roomInformation.pin}
-				></Header>
+				<div className="flex flex-col items-center text-white">
+					<p className="text-lg font-semibold">Welcome {userId}</p>
+					<div className="flex gap-2">
+						<p>Share the session</p>
+						<IoShareOutline
+							className="h-6 w-6"
+							onClick={() => {
+								navigator.clipboard.writeText(
+									import.meta.env.VITE_BASE_URI +
+										`/room/${roomInformation.roomId}`
+								);
+							}}
+						></IoShareOutline>
+					</div>
+					<p>Pin: {roomInformation.pin}</p>
+				</div>
 				<div className="h-20"></div>
 				<Search></Search>
 			</div>
