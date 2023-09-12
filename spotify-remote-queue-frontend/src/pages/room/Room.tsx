@@ -1,12 +1,13 @@
-import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import type { RootState } from '../../store/store';
+import { useDispatch, useSelector } from 'react-redux';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
-import { saveInformation } from '../../store/slice/roomInformationSlice';
+import { IoShareOutline } from 'react-icons/io5';
 import { RoomInformation } from '../home/Home';
 import Search from '../../components/search/Search';
-import Header from '../../components/room/Header';
+import { saveInformation } from '../../store/slice/roomInformationSlice';
+import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
+
+import type { RootState } from '../../store/store';
 
 type Inputs = {
 	roomId: string;
