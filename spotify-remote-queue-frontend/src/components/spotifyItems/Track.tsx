@@ -14,6 +14,10 @@ const Track = (props: Props) => {
 
 	const accessToken = 'Bearer ' + jwt;
 
+	const imageUrl = props.track.album.images[0].url;
+
+	console.log(imageUrl);
+
 	const addSongToQueue = async (trackId: string) => {
 		const url =
 			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
@@ -37,18 +41,28 @@ const Track = (props: Props) => {
 
 	return (
 		<div
-			className="relative m-2 flex bg-gray-800 p-3 text-white"
+			className="relative m-2 flex h-20 items-center gap-2 rounded-md bg-gray-800 p-3 text-white md:mx-auto md:h-28 md:w-8/12"
 			key={props.track.id}
 		>
-			<div className="flex flex-col gap-5">
-				<p className="text-base font-semibold">{props.track.name}</p>
-				<div className="flex gap-1">
-					{props.track.artists.map((artist, index, array) => (
-						<p className="text-sm" key={artist.name}>
-							{artist.name}
-							{array.length - index - 1 ? ' ,' : ''}
-						</p>
-					))}
+			<img src={imageUrl} className="aspect-square h-full rounded-sm" />
+			<div>
+				<div className="flex h-full w-60 flex-col gap-2 md:w-max md:gap-6">
+					<p className="truncate whitespace-nowrap text-base font-semibold md:text-lg">
+						{props.track.name}
+					</p>
+					<div className="">
+						<div className="flex gap-1">
+							{props.track.artists.map((artist, index, array) => (
+								<p
+									className="truncate whitespace-nowrap text-sm md:text-base"
+									key={artist.name}
+								>
+									{artist.name}
+									{array.length - index - 1 ? ' ,' : ''}
+								</p>
+							))}
+						</div>
+					</div>
 				</div>
 			</div>
 			<button
@@ -58,7 +72,7 @@ const Track = (props: Props) => {
 				disabled={isAdded}
 				className="group"
 			>
-				<BiPlusCircle className="absolute right-4 h-6 w-6 -translate-y-1/2 group-disabled:text-gray-600"></BiPlusCircle>
+				<BiPlusCircle className="absolute right-4 h-6 w-6 -translate-y-1/2 group-disabled:text-gray-600 md:h-10 md:w-10"></BiPlusCircle>
 			</button>
 		</div>
 	);

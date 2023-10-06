@@ -2,11 +2,10 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { IoShareOutline } from 'react-icons/io5';
-import { RoomInformation } from '../home/Home';
 import Search from '../../components/search/Search';
+import { RoomInformation } from '../home/Home';
 import { saveInformation } from '../../store/slice/roomInformationSlice';
 import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
-
 import type { RootState } from '../../store/store';
 
 type Inputs = {
@@ -19,7 +18,7 @@ const Room = () => {
 	const { roomId } = useParams();
 	const dispatch = useDispatch();
 	const { register, handleSubmit } = useForm<Inputs>();
-	const { isAuthenticated, userId } = useSelector(
+	const { isAuthenticated } = useSelector(
 		(state: RootState) => state.authentication
 	);
 	const roomInformation = useSelector(
@@ -92,24 +91,38 @@ const Room = () => {
 	}
 	if (isAuthenticated) {
 		display = (
-			<div>
-				<div className="flex flex-col items-center text-white">
-					<p className="text-lg font-semibold">Welcome {userId}</p>
-					<div className="flex gap-2">
-						<p>Share the session</p>
-						<IoShareOutline
-							className="h-6 w-6"
-							onClick={() => {
-								navigator.clipboard.writeText(
-									import.meta.env.VITE_BASE_URI +
-										`/room/${roomInformation.roomId}`
-								);
-							}}
-						></IoShareOutline>
-					</div>
-					<p>Pin: {roomInformation.pin}</p>
+			<div className="">
+				<div className="mb-10 flex items-center justify-center bg-gray-700 py-5 text-white">
+					<p className="text-lg font-semibold">
+						Remote Queue for Spotify
+					</p>
+					<IoShareOutline
+						className="fixed right-3 h-8 w-8 md:relative md:left-10"
+						onClick={() => {
+							const linkElement = document.getElementById(
+								'link'
+							) as HTMLInputElement;
+
+							if (linkElement == null) {
+								console.error('link element not found');
+								return;
+							}
+							linkElement.focus();
+							linkElement.select();
+							linkElement.setSelectionRange(0, 99999);
+							navigator.clipboard.writeText(linkElement.value);
+						}}
+					></IoShareOutline>
+					<input
+						className="hidden text-black"
+						id="link"
+						type="textarea"
+						defaultValue={
+							import.meta.env.VITE_BASE_URI +
+							`/room/${roomInformation.roomId}`
+						}
+					/>
 				</div>
-				<div className="h-20"></div>
 				<Search></Search>
 			</div>
 		);

@@ -35,18 +35,16 @@ const Search = () => {
 
 	return (
 		<div>
-			<p className="mx-auto w-fit text-2xl text-white">
-				Search for songs
-			</p>
+			<p className="mx-auto w-fit text-2xl text-white">Search</p>
 			<div className="h-4"></div>
 			<form
 				onSubmit={handleSubmit(onSubmit)}
-				className="mx-auto flex w-fit"
+				className="mx-auto flex w-fit gap-4"
 			>
 				<input
 					type="text"
 					{...register('title', { required: true })}
-					className="rounded-3xl bg-gray-700 px-5 py-3 text-white"
+					className="rounded-3xl bg-gray-700 px-6 py-2 text-white"
 				/>
 				<button>
 					<BiSearch className="h-8 w-8 text-white"></BiSearch>
