@@ -1,12 +1,10 @@
 import { useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { IoShareOutline } from 'react-icons/io5';
 import Search from '../../components/search/Search';
 import { RoomInformation } from '../home/Home';
-import { saveInformation } from '../../store/slice/roomInformationSlice';
-import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
-import type { RootState } from '../../store/store';
+import { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 
 type Inputs = {
 	roomId: string;
@@ -16,14 +14,23 @@ type Inputs = {
 
 const Room = () => {
 	const { roomId } = useParams();
-	const dispatch = useDispatch();
 	const { register, handleSubmit } = useForm<Inputs>();
-	const { isAuthenticated } = useSelector(
-		(state: RootState) => state.authentication
-	);
-	const roomInformation = useSelector(
-		(state: RootState) => state.roomInformation
-	);
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [cookie, setCookie] = useCookies([
+		'roomId',
+		'roomPin',
+		'roomExpiry',
+		'jwtToken',
+		'jwtExpiry',
+	]);
+
+	useEffect(() => {
+		if (roomId == cookie.roomId) {
+			if (parseInt(cookie.jwtExpiry) > Date.now()) {
+				setIsAuthenticated(true);
+			}
+		}
+	}, [cookie, roomId]);
 
 	const onSubmit: SubmitHandler<Inputs> = async (data) => {
 		const url =
@@ -48,11 +55,20 @@ const Room = () => {
 		body.roomId = roomId || '';
 		body.pin = data.pin;
 
-		dispatch(
-			saveJwt(response.headers.get('Authorization')?.slice(7) || '')
-		);
-		dispatch(authenticate());
-		dispatch(saveInformation(body));
+		const authorizationHeader = response.headers.get('Authorization');
+
+		if (authorizationHeader) {
+			setCookie('jwtToken', authorizationHeader.slice(7), {
+				maxAge: 3600,
+			});
+			setCookie('jwtExpiry', Date.now() + 3600000 + '', {
+				maxAge: 3600,
+			});
+		}
+		setCookie('roomId', body.roomId, { maxAge: 3600 });
+		setCookie('roomExpiry', Date.parse(body.expiry), { maxAge: 3600 });
+		setCookie('roomPin', body.pin, { maxAge: 3600 });
+		setIsAuthenticated(true);
 	};
 
 	let display = null;
@@ -119,7 +135,7 @@ const Room = () => {
 						type="textarea"
 						defaultValue={
 							import.meta.env.VITE_BASE_URI +
-							`/room/${roomInformation.roomId}`
+							`/room/${cookie.roomId}`
 						}
 					/>
 				</div>

@@ -1,10 +1,8 @@
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BsSpotify } from 'react-icons/bs';
-import { saveInformation } from '../../store/slice/roomInformationSlice';
-import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
 
 type Inputs = {
 	roomId: string;
@@ -19,9 +17,16 @@ export type RoomInformation = {
 
 const Home = () => {
 	const { register, handleSubmit } = useForm<Inputs>();
+	const [prevRoom, setPrevRoom] = useState(false);
 	const navigate = useNavigate();
-	const dispatch = useDispatch();
 	const [searchParams] = useSearchParams();
+	const [cookie, setCookie, removeCookie] = useCookies([
+		'roomId',
+		'roomPin',
+		'roomExpiry',
+		'jwtToken',
+		'jwtExpiry',
+	]);
 
 	const onSubmit: SubmitHandler<Inputs> = (data) => {
 		navigate(`/room/${data.roomId.trim()}`);
@@ -54,23 +59,55 @@ const Home = () => {
 			);
 
 			if (!response.ok) {
+				// add the hot toast here
+				console.log('error');
+				removeCookie('roomId');
+				removeCookie('roomPin');
+				removeCookie('roomExpiry');
+				removeCookie('jwtExpiry');
+				removeCookie('jwtToken');
 				return;
 			}
+			console.log('error2');
 
 			const body = (await response.json()) as RoomInformation;
 			const authorizationHeader = response.headers.get('Authorization');
-			authorizationHeader &&
-				dispatch(saveJwt(authorizationHeader.slice(7)));
-			dispatch(authenticate());
-			dispatch(saveInformation(body));
+
+			if (authorizationHeader) {
+				setCookie('jwtToken', authorizationHeader.slice(7), {
+					maxAge: 3600,
+				});
+				setCookie('jwtExpiry', Date.now() + 3600000 + '', {
+					maxAge: 3600,
+				});
+			}
+			setCookie('roomId', body.roomId, { maxAge: 3600 });
+			setCookie('roomExpiry', Date.parse(body.expiry), { maxAge: 3600 });
+			setCookie('roomPin', body.pin, { maxAge: 3600 });
+
 			navigate(`/room/${body.roomId}`);
 		};
+
+		if (cookie.roomId) {
+			if (
+				parseInt(cookie.jwtExpiry, 10) < Date.now() &&
+				parseInt(cookie.roomExpiry, 10) < Date.now()
+			) {
+				removeCookie('roomId');
+				removeCookie('roomPin');
+				removeCookie('roomExpiry');
+				removeCookie('jwtExpiry');
+				removeCookie('jwtToken');
+			} else {
+				setPrevRoom(true);
+			}
+		}
 
 		const code = searchParams.get('code');
 		if (code !== null) {
 			registerRoom(code);
 		}
-	}, [searchParams, dispatch, navigate]);
+	}, [searchParams, navigate, cookie, setCookie, removeCookie]);
 
 	return (
 		<div>
@@ -108,6 +145,17 @@ const Home = () => {
 					</button>
 				</form>
 			</div>
+			{prevRoom && (
+				<a
+					className="mx-auto flex h-10 w-32 items-center justify-center gap-2 rounded-md bg-green-500 py-3 text-white"
+					onClick={() => {
+						const roomId = cookie.roomId;
+						navigate(`/room/${roomId}`);
+					}}
+				>
+					Previous Room
+				</a>
+			)}
 		</div>
 	);
 };

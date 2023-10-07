@@ -1,10 +1,9 @@
 import { useForm } from 'react-hook-form';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store/store';
 import { TracksTrack, type SearchResponse } from '../../types/SearchResponse';
 import { useState } from 'react';
 import Track from '../spotifyItems/Track';
 import { BiSearch } from 'react-icons/bi';
+import { useCookies } from 'react-cookie';
 
 type Inputs = {
 	title: string;
@@ -13,7 +12,14 @@ type Inputs = {
 const Search = () => {
 	const [tracks, setTracks] = useState<TracksTrack[]>();
 	const { register, handleSubmit } = useForm<Inputs>();
-	const { jwt } = useSelector((state: RootState) => state.authentication);
+	const [cookie] = useCookies([
+		'roomId',
+		'roomPin',
+		'roomExpiry',
+		'jwtToken',
+		'jwtExpiry',
+	]);
+	const jwt = cookie.jwtToken;
 	const accessToken = 'Bearer ' + jwt;
 	const onSubmit = async (data: Inputs) => {
 		const url =
