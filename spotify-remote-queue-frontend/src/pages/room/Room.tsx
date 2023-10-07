@@ -5,6 +5,7 @@ import Search from '../../components/search/Search';
 import { RoomInformation } from '../home/Home';
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
+import toast from 'react-hot-toast';
 
 type Inputs = {
 	roomId: string;
@@ -127,6 +128,9 @@ const Room = () => {
 							linkElement.select();
 							linkElement.setSelectionRange(0, 99999);
 							navigator.clipboard.writeText(linkElement.value);
+							toast.success('Copied to clipboard', {
+								position: 'top-center',
+							});
 						}}
 					></IoShareOutline>
 					<input

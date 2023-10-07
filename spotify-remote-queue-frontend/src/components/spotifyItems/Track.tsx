@@ -1,15 +1,16 @@
-import { useSelector } from 'react-redux';
 import { TracksTrack } from '../../types/SearchResponse';
-import { RootState } from '../../store/store';
 import { BiPlusCircle } from 'react-icons/bi';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { useCookies } from 'react-cookie';
 
 type Props = {
 	track: TracksTrack;
 };
 
 const Track = (props: Props) => {
-	const { jwt } = useSelector((state: RootState) => state.authentication);
+	const [cookie] = useCookies(['jwtToken']);
+	const jwt = cookie.jwtToken;
 	const [isAdded, setIsAdded] = useState(false);
 
 	const accessToken = 'Bearer ' + jwt;
@@ -34,9 +35,12 @@ const Track = (props: Props) => {
 				itemUri: trackId,
 			}),
 		});
-		if (response.ok) {
-			setIsAdded(true);
+		if (!response.ok) {
+			toast.error('Error adding song', { position: 'top-center' });
+			return;
 		}
+		setIsAdded(true);
+		toast('Added to queue', { position: 'top-center' });
 	};
 
 	return (
@@ -67,7 +71,11 @@ const Track = (props: Props) => {
 			</div>
 			<button
 				onClick={() => {
-					addSongToQueue(props.track.uri);
+					addSongToQueue(props.track.uri).catch(() => {
+						toast.error('Error adding song', {
+							position: 'top-center',
+						});
+					});
 				}}
 				disabled={isAdded}
 				className="group"

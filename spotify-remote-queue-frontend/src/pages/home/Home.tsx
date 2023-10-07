@@ -3,6 +3,7 @@ import { useCookies } from 'react-cookie';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BsSpotify } from 'react-icons/bs';
+import toast from 'react-hot-toast';
 
 type Inputs = {
 	roomId: string;
@@ -59,16 +60,16 @@ const Home = () => {
 			);
 
 			if (!response.ok) {
-				// add the hot toast here
-				console.log('error');
 				removeCookie('roomId');
 				removeCookie('roomPin');
 				removeCookie('roomExpiry');
 				removeCookie('jwtExpiry');
 				removeCookie('jwtToken');
+				toast.error('Authentication Error', {
+					position: 'bottom-center',
+				});
 				return;
 			}
-			console.log('error2');
 
 			const body = (await response.json()) as RoomInformation;
 			const authorizationHeader = response.headers.get('Authorization');
@@ -105,7 +106,16 @@ const Home = () => {
 
 		const code = searchParams.get('code');
 		if (code !== null) {
-			registerRoom(code);
+			registerRoom(code).catch(() => {
+				removeCookie('roomId');
+				removeCookie('roomPin');
+				removeCookie('roomExpiry');
+				removeCookie('jwtExpiry');
+				removeCookie('jwtToken');
+				toast.error('Server Error', {
+					position: 'bottom-center',
+				});
+			});
 		}
 	}, [searchParams, navigate, cookie, setCookie, removeCookie]);
 
