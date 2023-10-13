@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { IoShareOutline } from 'react-icons/io5';
 import Search from '../../components/search/Search';
@@ -15,6 +15,7 @@ type Inputs = {
 
 const Room = () => {
 	const { roomId } = useParams();
+	const [URLSearchParams, SetURLSearchParams] = useSearchParams();
 	const { register, handleSubmit } = useForm<Inputs>();
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [cookie, setCookie] = useCookies([
@@ -90,7 +91,10 @@ const Room = () => {
 					</div>
 					<div>
 						<label className="text-white">Pin</label>
-						<input {...register('pin')} />
+						<input
+							{...register('pin')}
+							value={URLSearchParams.get('pin') || ''}
+						/>
 					</div>
 					<div>
 						<label className="text-white">Name</label>
@@ -139,7 +143,7 @@ const Room = () => {
 						type="textarea"
 						defaultValue={
 							import.meta.env.VITE_BASE_URI +
-							`/room/${cookie.roomId}`
+							`/room/${cookie.roomId}?pin=${cookie.roomPin}`
 						}
 					/>
 				</div>
