@@ -28,6 +28,7 @@ const Home = () => {
 		'jwtToken',
 		'jwtExpiry',
 	]);
+	let code = searchParams.get('code');
 
 	const onSubmit: SubmitHandler<Inputs> = (data) => {
 		navigate(`/room/${data.roomId.trim()}`);
@@ -104,20 +105,19 @@ const Home = () => {
 			}
 		}
 
-		const code = searchParams.get('code');
-		if (code !== null) {
-			registerRoom(code).catch(() => {
-				removeCookie('roomId');
-				removeCookie('roomPin');
-				removeCookie('roomExpiry');
-				removeCookie('jwtExpiry');
-				removeCookie('jwtToken');
-				toast.error('Server Error', {
-					position: 'bottom-center',
-				});
+		if (code == null) return;
+		registerRoom(code).catch(() => {
+			removeCookie('roomId');
+			removeCookie('roomPin');
+			removeCookie('roomExpiry');
+			removeCookie('jwtExpiry');
+			removeCookie('jwtToken');
+			toast.error('Server Error', {
+				position: 'bottom-center',
 			});
-		}
-	}, [searchParams, navigate, cookie, setCookie, removeCookie]);
+		});
+		code = null;
+	}, [searchParams, navigate, cookie, setCookie, removeCookie, code]);
 
 	return (
 		<div>
