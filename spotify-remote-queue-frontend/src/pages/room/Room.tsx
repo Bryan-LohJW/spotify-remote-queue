@@ -15,7 +15,7 @@ type Inputs = {
 
 const Room = () => {
 	const { roomId } = useParams();
-	const [URLSearchParams, SetURLSearchParams] = useSearchParams();
+	const [URLSearchParams] = useSearchParams();
 	const { register, handleSubmit } = useForm<Inputs>();
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [cookie, setCookie] = useCookies([
@@ -78,30 +78,35 @@ const Room = () => {
 		display = (
 			<div>
 				<form
-					className="mx-auto flex w-1/3 flex-col"
+					className="mx-auto flex w-2/3 flex-col gap-2 md:w-72"
 					onSubmit={handleSubmit(onSubmit)}
 				>
-					<div>
+					<div className="flex justify-between">
 						<label className="text-white">Room Id</label>
 						<input
+							className="w-2/3 rounded-md pl-3"
 							{...register('roomId')}
 							disabled
 							value={roomId}
 						/>
 					</div>
-					<div>
+					<div className="flex justify-between">
 						<label className="text-white">Pin</label>
 						<input
+							className="w-2/3 rounded-md pl-3"
 							{...register('pin')}
 							value={URLSearchParams.get('pin') || ''}
 						/>
 					</div>
-					<div>
+					<div className="flex justify-between">
 						<label className="text-white">Name</label>
-						<input {...register('userId')} />
+						<input
+							className="w-2/3 rounded-md pl-3"
+							{...register('userId')}
+						/>
 					</div>
 					<button
-						className="items-center justify-center rounded-md bg-green-500 text-white"
+						className="mx-auto h-8 w-1/2 items-center justify-center rounded-md bg-green-500 text-lg font-semibold text-white"
 						type="submit"
 					>
 						Enter
