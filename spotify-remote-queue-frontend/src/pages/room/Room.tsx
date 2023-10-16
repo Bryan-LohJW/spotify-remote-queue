@@ -1,12 +1,11 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import type { RootState } from '../../store/store';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { authenticate, saveJwt } from '../../store/slice/authenticationSlice';
-import { saveInformation } from '../../store/slice/roomInformationSlice';
-import { RoomInformation } from '../home/Home';
+import { IoShareOutline } from 'react-icons/io5';
 import Search from '../../components/search/Search';
-import Header from '../../components/room/Header';
+import { RoomInformation } from '../home/Home';
+import { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
+import toast from 'react-hot-toast';
 
 type Inputs = {
 	roomId: string;
@@ -16,14 +15,24 @@ type Inputs = {
 
 const Room = () => {
 	const { roomId } = useParams();
-	const dispatch = useDispatch();
+	const [URLSearchParams] = useSearchParams();
 	const { register, handleSubmit } = useForm<Inputs>();
-	const { isAuthenticated, userId } = useSelector(
-		(state: RootState) => state.authentication
-	);
-	const roomInformation = useSelector(
-		(state: RootState) => state.roomInformation
-	);
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [cookie, setCookie] = useCookies([
+		'roomId',
+		'roomPin',
+		'roomExpiry',
+		'jwtToken',
+		'jwtExpiry',
+	]);
+
+	useEffect(() => {
+		if (roomId == cookie.roomId) {
+			if (parseInt(cookie.jwtExpiry) > Date.now()) {
+				setIsAuthenticated(true);
+			}
+		}
+	}, [cookie, roomId]);
 
 	const onSubmit: SubmitHandler<Inputs> = async (data) => {
 		const url =
@@ -48,11 +57,20 @@ const Room = () => {
 		body.roomId = roomId || '';
 		body.pin = data.pin;
 
-		dispatch(
-			saveJwt(response.headers.get('Authorization')?.slice(7) || '')
-		);
-		dispatch(authenticate());
-		dispatch(saveInformation(body));
+		const authorizationHeader = response.headers.get('Authorization');
+
+		if (authorizationHeader) {
+			setCookie('jwtToken', authorizationHeader.slice(7), {
+				maxAge: 3600,
+			});
+			setCookie('jwtExpiry', Date.now() + 3600000 + '', {
+				maxAge: 3600,
+			});
+		}
+		setCookie('roomId', body.roomId, { maxAge: 3600 });
+		setCookie('roomExpiry', Date.parse(body.expiry), { maxAge: 3600 });
+		setCookie('roomPin', body.pin, { maxAge: 3600 });
+		setIsAuthenticated(true);
 	};
 
 	let display = null;
@@ -60,27 +78,35 @@ const Room = () => {
 		display = (
 			<div>
 				<form
-					className="mx-auto flex w-1/3 flex-col"
+					className="mx-auto flex w-2/3 flex-col gap-2 md:w-72"
 					onSubmit={handleSubmit(onSubmit)}
 				>
-					<div>
+					<div className="flex justify-between">
 						<label className="text-white">Room Id</label>
 						<input
+							className="w-2/3 rounded-md pl-3"
 							{...register('roomId')}
 							disabled
 							value={roomId}
 						/>
 					</div>
-					<div>
+					<div className="flex justify-between">
 						<label className="text-white">Pin</label>
-						<input {...register('pin')} />
+						<input
+							className="w-2/3 rounded-md pl-3"
+							{...register('pin')}
+							value={URLSearchParams.get('pin') || ''}
+						/>
 					</div>
-					<div>
+					<div className="flex justify-between">
 						<label className="text-white">Name</label>
-						<input {...register('userId')} />
+						<input
+							className="w-2/3 rounded-md pl-3"
+							{...register('userId')}
+						/>
 					</div>
 					<button
-						className="items-center justify-center rounded-md bg-green-500 text-white"
+						className="mx-auto h-8 w-1/2 items-center justify-center rounded-md bg-green-500 text-lg font-semibold text-white"
 						type="submit"
 					>
 						Enter
@@ -91,13 +117,41 @@ const Room = () => {
 	}
 	if (isAuthenticated) {
 		display = (
-			<div>
-				<Header
-					name={userId}
-					roomId={roomInformation.roomId}
-					pin={roomInformation.pin}
-				></Header>
-				<div className="h-20"></div>
+			<div className="">
+				<div className="mb-10 flex items-center justify-center bg-gray-700 py-5 text-white">
+					<p className="text-lg font-semibold">
+						Remote Queue for Spotify
+					</p>
+					<IoShareOutline
+						className="fixed right-3 h-8 w-8 md:relative md:left-10"
+						onClick={() => {
+							const linkElement = document.getElementById(
+								'link'
+							) as HTMLInputElement;
+
+							if (linkElement == null) {
+								console.error('link element not found');
+								return;
+							}
+							linkElement.focus();
+							linkElement.select();
+							linkElement.setSelectionRange(0, 99999);
+							navigator.clipboard.writeText(linkElement.value);
+							toast.success('Copied to clipboard', {
+								position: 'top-center',
+							});
+						}}
+					></IoShareOutline>
+					<input
+						className="hidden text-black"
+						id="link"
+						type="textarea"
+						defaultValue={
+							import.meta.env.VITE_BASE_URI +
+							`/room/${cookie.roomId}?pin=${cookie.roomPin}`
+						}
+					/>
+				</div>
 				<Search></Search>
 			</div>
 		);

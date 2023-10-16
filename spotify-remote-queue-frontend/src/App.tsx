@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import Room from './pages/room/Room';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
+import { CookiesProvider } from 'react-cookie';
+import { Toaster } from 'react-hot-toast';
 
 const router = createBrowserRouter([
 	{
@@ -27,7 +29,10 @@ const App = () => {
 	return (
 		<Provider store={store}>
 			<QueryClientProvider client={queryClient}>
-				<RouterProvider router={router} />
+				<CookiesProvider>
+					<RouterProvider router={router} />
+					<Toaster />
+				</CookiesProvider>
 			</QueryClientProvider>
 		</Provider>
 	);
