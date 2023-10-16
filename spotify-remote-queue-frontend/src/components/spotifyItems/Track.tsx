@@ -1,8 +1,8 @@
-import { TracksTrack } from '../../types/SearchResponse';
-import { BiPlusCircle } from 'react-icons/bi';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useCookies } from 'react-cookie';
+import { BiPlusCircle } from 'react-icons/bi';
+import { TracksTrack } from '../../types/SearchResponse';
 
 type Props = {
 	track: TracksTrack;
@@ -16,8 +16,6 @@ const Track = (props: Props) => {
 	const accessToken = 'Bearer ' + jwt;
 
 	const imageUrl = props.track.album.images[0].url;
-
-	console.log(imageUrl);
 
 	const addSongToQueue = async (trackId: string) => {
 		const url =
