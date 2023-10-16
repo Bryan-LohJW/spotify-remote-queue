@@ -57,11 +57,11 @@ public class AuthenticationService {
             throw new RegistrationException("Invalid room id", HttpStatus.BAD_REQUEST);
         });
         if (!spotifyRoom.getPin().equals(pin)) {
-            throw new RegistrationException("Invalid pin", HttpStatus.BAD_REQUEST);
+            throw new RegistrationException("Invalid pin", HttpStatus.UNAUTHORIZED);
         }
         Optional<User> optionalUser = userRepository.findByUserIdAndRoomId(userId, roomId);
         if (optionalUser.isPresent()) {
-            throw new RegistrationException("Username taken", HttpStatus.BAD_REQUEST);
+            throw new RegistrationException("Username taken", HttpStatus.CONFLICT);
         }
         return spotifyRoom;
     }
