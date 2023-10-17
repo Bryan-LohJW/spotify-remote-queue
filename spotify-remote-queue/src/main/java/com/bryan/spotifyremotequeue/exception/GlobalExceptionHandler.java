@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 exception.getMessage()
         );
-        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorDetails, exception.getStatus());
     }
 
     @ExceptionHandler(RegistrationException.class)

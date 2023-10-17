@@ -4,6 +4,7 @@ import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
 import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
 import com.bryan.spotifyremotequeue.service.spotify.response.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -36,7 +37,7 @@ public class SpotifySearchService {
                             .block();
 
         } catch (WebClientResponseException exception) {
-            throw new SpotifyApiException(exception.getStatusCode().value(), "Exception while searching");
+            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
         }
         return response;
     }
