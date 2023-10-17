@@ -37,7 +37,7 @@ public class AuthenticationService {
     public String getAccessToken() {
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(principal.getRoomId()).orElseThrow(() -> {
-            throw new SpotifyApiException(HttpStatus.NOT_FOUND, "Room not found");
+            throw new SpotifyApiException("Room not found", HttpStatus.NOT_FOUND);
         });
         return spotifyRoom.getAccessToken();
     }

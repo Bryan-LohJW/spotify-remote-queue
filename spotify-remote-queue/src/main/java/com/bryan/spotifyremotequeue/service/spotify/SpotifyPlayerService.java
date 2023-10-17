@@ -40,13 +40,13 @@ public class SpotifyPlayerService {
                             .block();
         } catch (WebClientResponseException exception) {
             if (exception.getStatusCode().value() == 400) {
-                throw new SpotifyApiException(HttpStatus.BAD_REQUEST, "Invalid track id");
+                throw new SpotifyApiException("Invalid track id", HttpStatus.BAD_REQUEST);
             }
             if (exception.getStatusCode().value() == 404) {
                 setPlayerState(false);
-                throw new SpotifyApiException(HttpStatus.NOT_FOUND, "No player available");
+                throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
             }
-            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+            throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return "Success";
     }
@@ -69,9 +69,9 @@ public class SpotifyPlayerService {
         } catch (WebClientResponseException exception) {
             if (exception.getStatusCode().value() == 404) {
                 setPlayerState(false);
-                throw new SpotifyApiException(HttpStatus.NOT_FOUND, "No player available");
+                throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
             }
-            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+            throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return "Success";
     }
@@ -94,9 +94,9 @@ public class SpotifyPlayerService {
         } catch (WebClientResponseException exception) {
             if (exception.getStatusCode().value() == 404) {
                 setPlayerState(false);
-                throw new SpotifyApiException(HttpStatus.NOT_FOUND, "No player available");
+                throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
             }
-            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+            throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return "Success";
     }
@@ -119,9 +119,9 @@ public class SpotifyPlayerService {
         } catch (WebClientResponseException exception) {
             if (exception.getStatusCode().value() == 404) {
                 setPlayerState(false);
-                throw new SpotifyApiException(HttpStatus.NOT_FOUND, "No player available");
+                throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
             }
-            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+            throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return "Success";
     }
@@ -142,7 +142,7 @@ public class SpotifyPlayerService {
                             .bodyToMono(PlaybackStateResponse.class)
                             .block();
         } catch (WebClientResponseException exception) {
-            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+            throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (response != null &&
                 response.getDevice() != null &&
@@ -157,17 +157,17 @@ public class SpotifyPlayerService {
     private void checkIsActive() {
         String roomId = authenticationService.getRoomId();
         SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(roomId).orElseThrow(() -> {
-            throw new SpotifyApiException(HttpStatus.NOT_FOUND, "Room not found");
+            throw new SpotifyApiException("Room not found", HttpStatus.NOT_FOUND);
         });
         if (!spotifyRoom.isActive()) {
-            throw new SpotifyApiException(HttpStatus.NOT_FOUND, "No player available");
+            throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
         }
     }
 
     private void setPlayerState(boolean currentState) {
         String roomId = authenticationService.getRoomId();
         SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(roomId).orElseThrow(() -> {
-            throw new SpotifyApiException(HttpStatus.NOT_FOUND, "Room not found");
+            throw new SpotifyApiException("Room not found", HttpStatus.NOT_FOUND);
         });
         spotifyRoom.setActive(currentState);
         spotifyRoomRepository.save(spotifyRoom);

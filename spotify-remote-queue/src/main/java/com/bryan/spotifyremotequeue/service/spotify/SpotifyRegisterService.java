@@ -67,7 +67,7 @@ public class SpotifyRegisterService {
                     .bodyToMono(AuthenticateResponse.class)
                     .block();
         } catch (WebClientResponseException exception) {
-            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+            throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         CurrentUserProfileResponse currentUserProfileResponse = null;
         try {
@@ -79,10 +79,10 @@ public class SpotifyRegisterService {
                     .bodyToMono(CurrentUserProfileResponse.class)
                     .block();
         } catch (WebClientResponseException exception) {
-            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+            throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (!currentUserProfileResponse.getProduct().equals(SpotifyConstants.PREMIUM)) {
-            throw new SpotifyApiException(HttpStatus.FORBIDDEN, "Requires premium account");
+            throw new SpotifyApiException("Requires premium account", HttpStatus.FORBIDDEN);
         }
         if (spotifyRoomRepository.existsByOwner(currentUserProfileResponse.getId())) {
             //https://thorben-janssen.com/avoid-cascadetype-delete-many-assocations/
