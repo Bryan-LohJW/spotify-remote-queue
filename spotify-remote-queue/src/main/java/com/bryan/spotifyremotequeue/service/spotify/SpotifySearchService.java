@@ -1,6 +1,7 @@
 package com.bryan.spotifyremotequeue.service.spotify;
 
 import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
+import com.bryan.spotifyremotequeue.exception.SpotifySearchException;
 import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
 import com.bryan.spotifyremotequeue.service.spotify.response.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class SpotifySearchService {
                             .block();
 
         } catch (WebClientResponseException exception) {
-            throw new SpotifyApiException(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+            throw new SpotifySearchException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
     }
