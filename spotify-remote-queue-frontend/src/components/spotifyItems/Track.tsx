@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useCookies } from 'react-cookie';
 import { BiPlusCircle } from 'react-icons/bi';
 import { TracksTrack } from '../../types/SearchResponse';
+import { ErrorMessage } from '../../types/ErrorResponse';
 
 type Props = {
 	track: TracksTrack;
@@ -34,7 +35,8 @@ const Track = (props: Props) => {
 			}),
 		});
 		if (!response.ok) {
-			toast.error('Error adding song', { position: 'top-center' });
+			const errorBody = (await response.json()) as ErrorMessage;
+			toast.error(errorBody.message, { position: 'top-center' });
 			return;
 		}
 		setIsAdded(true);

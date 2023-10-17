@@ -11,13 +11,13 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 public class SpotifyApiException extends WebClientResponseException {
 
     private HttpStatus status;
-
+    
     public SpotifyApiException(int statusCode, String message) {
         super(statusCode, message, null, null, null);
     }
 
     public SpotifyApiException(HttpStatus status, String message) {
-        super(status.value(), message, null, null, null);
+        super(message, status.value(), status.getReasonPhrase(), null, null, null);
         this.status = status;
     }
 }
