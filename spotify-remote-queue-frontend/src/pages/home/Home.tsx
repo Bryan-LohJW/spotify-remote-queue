@@ -4,6 +4,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BsSpotify } from 'react-icons/bs';
 import toast from 'react-hot-toast';
+import { ErrorMessage } from '../../types/ErrorResponse';
 
 type Inputs = {
 	roomId: string;
@@ -61,12 +62,13 @@ const Home = () => {
 			);
 
 			if (!response.ok) {
+				const errorResponse = (await response.json()) as ErrorMessage;
 				removeCookie('roomId');
 				removeCookie('roomPin');
 				removeCookie('roomExpiry');
 				removeCookie('jwtExpiry');
 				removeCookie('jwtToken');
-				toast.error('Authentication Error', {
+				toast.error(errorResponse.message, {
 					position: 'bottom-center',
 				});
 				return;
