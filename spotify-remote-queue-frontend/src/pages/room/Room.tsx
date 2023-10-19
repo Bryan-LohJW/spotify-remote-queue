@@ -6,6 +6,7 @@ import { RoomInformation } from '../home/Home';
 import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import toast from 'react-hot-toast';
+import { ErrorMessage } from '../../types/ErrorResponse';
 
 type Inputs = {
 	roomId: string;
@@ -38,6 +39,27 @@ const Room = () => {
 		const url =
 			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
 			'/api/v1/spotify/register/user';
+		try {
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					userId: data.userId,
+					pin: data.pin,
+					roomId: roomId,
+				}),
+			});
+			if (!response.ok) {
+				const errorResponse = (await response.json()) as ErrorMessage;
+				toast.error(errorResponse.message, { position: 'top-center' });
+				return;
+			}
+		} catch (error) {
+			toast.error('Internal Server Error', { position: 'top-center' });
+		}
 		const response = await fetch(url, {
 			method: 'POST',
 			headers: {
@@ -51,6 +73,8 @@ const Room = () => {
 			}),
 		});
 		if (!response.ok) {
+			const body = await response.json();
+			toast.error(body.message);
 			return;
 		}
 		const body = (await response.json()) as RoomInformation;
@@ -94,8 +118,9 @@ const Room = () => {
 						<label className="text-white">Pin</label>
 						<input
 							className="w-2/3 rounded-md pl-3"
-							{...register('pin')}
-							value={URLSearchParams.get('pin') || ''}
+							{...register('pin', {
+								value: URLSearchParams.get('pin') || '',
+							})}
 						/>
 					</div>
 					<div className="flex justify-between">

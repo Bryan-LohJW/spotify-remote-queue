@@ -37,7 +37,7 @@ public class AuthenticationService {
     public String getAccessToken() {
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(principal.getRoomId()).orElseThrow(() -> {
-            throw new SpotifyApiException(404, "Room not found");
+            throw new SpotifyApiException("Room not found", HttpStatus.NOT_FOUND);
         });
         return spotifyRoom.getAccessToken();
     }
@@ -57,11 +57,11 @@ public class AuthenticationService {
             throw new RegistrationException("Invalid room id", HttpStatus.BAD_REQUEST);
         });
         if (!spotifyRoom.getPin().equals(pin)) {
-            throw new RegistrationException("Invalid pin", HttpStatus.BAD_REQUEST);
+            throw new RegistrationException("Invalid pin", HttpStatus.UNAUTHORIZED);
         }
         Optional<User> optionalUser = userRepository.findByUserIdAndRoomId(userId, roomId);
         if (optionalUser.isPresent()) {
-            throw new RegistrationException("Username taken", HttpStatus.BAD_REQUEST);
+            throw new RegistrationException("Username taken", HttpStatus.CONFLICT);
         }
         return spotifyRoom;
     }
