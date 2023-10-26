@@ -96,6 +96,9 @@ public class SpotifyPlayerService {
                 setPlayerState(false);
                 throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
             }
+            if (exception.getStatusCode().value() == 403) {
+                throw new SpotifyApiException("Already paused", HttpStatus.FORBIDDEN);
+            }
             throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return "Success";
@@ -120,6 +123,9 @@ public class SpotifyPlayerService {
             if (exception.getStatusCode().value() == 404) {
                 setPlayerState(false);
                 throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
+            }
+            if (exception.getStatusCode().value() == 403) {
+                throw new SpotifyApiException("Already playing", HttpStatus.FORBIDDEN);
             }
             throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
