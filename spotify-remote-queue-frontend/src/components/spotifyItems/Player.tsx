@@ -2,15 +2,11 @@ import { IoShareOutline } from 'react-icons/io5';
 import Search from '../../components/search/Search';
 import { useCookies } from 'react-cookie';
 import toast from 'react-hot-toast';
+import cookieList from '../../constants/CookieList';
+import PlayerBar from './PlayerBar';
 
 const Player = () => {
-	const [cookie] = useCookies([
-		'roomId',
-		'roomPin',
-		'roomExpiry',
-		'jwtToken',
-		'jwtExpiry',
-	]);
+	const [cookie] = useCookies(cookieList);
 
 	return (
 		<div className="">
@@ -49,6 +45,7 @@ const Player = () => {
 				/>
 			</div>
 			<Search></Search>
+			<PlayerBar></PlayerBar>
 		</div>
 	);
 };
