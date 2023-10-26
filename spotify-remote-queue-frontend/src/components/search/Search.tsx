@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Track from '../spotifyItems/Track';
 import { BiSearch } from 'react-icons/bi';
 import { useCookies } from 'react-cookie';
+import cookieList from '../../constants/CookieList';
 
 type Inputs = {
 	title: string;
@@ -12,13 +13,7 @@ type Inputs = {
 const Search = () => {
 	const [tracks, setTracks] = useState<TracksTrack[]>();
 	const { register, handleSubmit } = useForm<Inputs>();
-	const [cookie] = useCookies([
-		'roomId',
-		'roomPin',
-		'roomExpiry',
-		'jwtToken',
-		'jwtExpiry',
-	]);
+	const [cookie] = useCookies(cookieList);
 	const jwt = cookie.jwtToken;
 	const accessToken = 'Bearer ' + jwt;
 	const onSubmit = async (data: Inputs) => {

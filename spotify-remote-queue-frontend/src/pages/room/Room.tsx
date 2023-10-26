@@ -1,13 +1,12 @@
+import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { IoShareOutline } from 'react-icons/io5';
-import Search from '../../components/search/Search';
-import { RoomInformation } from '../home/Home';
-import { useEffect, useState } from 'react';
 import { useCookies } from 'react-cookie';
 import toast from 'react-hot-toast';
 import { ErrorMessage } from '../../types/ErrorResponse';
+import { RoomInformation } from '../home/Home';
 import Player from '../../components/spotifyItems/Player';
+import cookieList from '../../constants/CookieList';
 
 type Inputs = {
 	roomId: string;
@@ -20,13 +19,7 @@ const Room = () => {
 	const [URLSearchParams] = useSearchParams();
 	const { register, handleSubmit } = useForm<Inputs>();
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	const [cookie, setCookie] = useCookies([
-		'roomId',
-		'roomPin',
-		'roomExpiry',
-		'jwtToken',
-		'jwtExpiry',
-	]);
+	const [cookie, setCookie] = useCookies(cookieList);
 
 	useEffect(() => {
 		if (roomId == cookie.roomId) {
