@@ -1,12 +1,12 @@
 import { useCookies } from 'react-cookie';
-import { BiRefresh, BiSkipNext } from 'react-icons/bi';
+import { BiSkipNext } from 'react-icons/bi';
 import { BsFillPlayFill, BsFillPauseFill } from 'react-icons/bs';
 import cookieList from '../../constants/CookieList';
 import toast from 'react-hot-toast';
 import { ErrorMessage } from '../../types/ErrorResponse';
 
 const PlayerBar = () => {
-	const [cookie, setCookie] = useCookies(cookieList);
+	const [cookie] = useCookies(cookieList);
 
 	const accessToken = 'Bearer ' + cookie.jwtToken;
 	const play = async () => {
@@ -49,28 +49,6 @@ const PlayerBar = () => {
 		toast.success('Success');
 	};
 
-	const fetchPlaybackState = async () => {
-		const url =
-			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
-			'/api/v1/spotify/player';
-
-		const response = await fetch(url, {
-			method: 'GET',
-			headers: {
-				'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
-				'Content-Type': 'application/json',
-				Authorization: accessToken,
-			},
-		});
-		if (!response.ok) {
-			const body = (await response.json()) as ErrorMessage;
-			toast.error(body.message);
-		}
-		const body = await response.json();
-		setCookie('isActive', body.active);
-		toast.success('Success');
-	};
-
 	const next = async () => {
 		const url =
 			import.meta.env.VITE_BACKEND_ENDPOINT_BASE +
@@ -95,13 +73,6 @@ const PlayerBar = () => {
 		<div className="h-20">
 			<div className="fixed bottom-0 flex h-20 w-full bg-gray-500">
 				<div className="mx-auto flex w-44 justify-between">
-					<button
-						onClick={() => {
-							fetchPlaybackState();
-						}}
-					>
-						<BiRefresh className="h-10 w-10"></BiRefresh>
-					</button>
 					<button
 						onClick={() => {
 							play();
