@@ -1,9 +1,7 @@
 package com.bryan.spotifyremotequeue.service.spotify;
 
-import com.bryan.spotifyremotequeue.enums.PLAYER_STATE;
 import com.bryan.spotifyremotequeue.enums.SpotifyConstants;
 import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
-import com.bryan.spotifyremotequeue.model.SpotifyRoom;
 import com.bryan.spotifyremotequeue.repository.SpotifyRoomRepository;
 import com.bryan.spotifyremotequeue.service.authentication.AuthenticationService;
 import com.bryan.spotifyremotequeue.service.spotify.response.PlaybackStateResponse;
@@ -136,11 +134,11 @@ public class SpotifyPlayerService {
             throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (response == null) {
-            throw new SpotifyApiException(String.valueOf(PLAYER_STATE.NO_DEVICE), HttpStatus.NOT_FOUND);
+            throw new SpotifyApiException("No playing device", HttpStatus.NOT_FOUND);
 
         }
         if (!response.getDevice().is_active()) {
-            throw new SpotifyApiException(String.valueOf(PLAYER_STATE.NOT_ACTIVE), HttpStatus.NOT_FOUND);
+            throw new SpotifyApiException("No active device", HttpStatus.NOT_FOUND);
         }
     }
 }
