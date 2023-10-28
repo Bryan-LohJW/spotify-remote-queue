@@ -25,6 +25,7 @@ const PlayerBar = () => {
 		if (!response.ok) {
 			const body = (await response.json()) as ErrorMessage;
 			toast.error(body.message);
+			return;
 		}
 		toast.success('Success');
 	};
@@ -45,6 +46,7 @@ const PlayerBar = () => {
 		if (!response.ok) {
 			const body = (await response.json()) as ErrorMessage;
 			toast.error(body.message);
+			return;
 		}
 		toast.success('Success');
 	};
@@ -65,6 +67,7 @@ const PlayerBar = () => {
 		if (!response.ok) {
 			const body = (await response.json()) as ErrorMessage;
 			toast.error(body.message);
+			return;
 		}
 		toast.success('Success');
 	};
