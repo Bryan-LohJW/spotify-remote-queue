@@ -34,9 +34,4 @@ public class SpotifyPlayerController {
     public ResponseEntity<SuccessResponse> pause() {
         return ResponseEntity.ok(new SuccessResponse(spotifyPlayerService.pause()));
     }
-
-    @GetMapping()
-    public ResponseEntity<IsActiveResponse> playerState() {
-        return ResponseEntity.ok(new IsActiveResponse(spotifyPlayerService.isActive()));
-    }
 }
