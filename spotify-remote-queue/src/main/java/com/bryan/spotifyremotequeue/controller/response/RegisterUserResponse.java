@@ -13,6 +13,4 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class RegisterUserResponse {
     private LocalDateTime expiry;
-
-    private boolean isActive;
 }

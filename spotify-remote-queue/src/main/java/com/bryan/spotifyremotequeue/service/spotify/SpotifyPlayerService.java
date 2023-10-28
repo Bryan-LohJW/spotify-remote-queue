@@ -1,5 +1,6 @@
 package com.bryan.spotifyremotequeue.service.spotify;
 
+import com.bryan.spotifyremotequeue.enums.PLAYER_STATE;
 import com.bryan.spotifyremotequeue.enums.SpotifyConstants;
 import com.bryan.spotifyremotequeue.exception.SpotifyApiException;
 import com.bryan.spotifyremotequeue.model.SpotifyRoom;
@@ -23,7 +24,7 @@ public class SpotifyPlayerService {
     private SpotifyRoomRepository spotifyRoomRepository;
 
     public String addToQueue(String itemUri) throws SpotifyApiException {
-        checkIsActive();
+        isActive();
         String addToQueueUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER + SpotifyConstants.QUEUE;
         String uriParams = "?uri=" + itemUri.trim();
         String accessToken = authenticationService.getAccessToken();
@@ -42,17 +43,13 @@ public class SpotifyPlayerService {
             if (exception.getStatusCode().value() == 400) {
                 throw new SpotifyApiException("Invalid track id", HttpStatus.BAD_REQUEST);
             }
-            if (exception.getStatusCode().value() == 404) {
-                setPlayerState(false);
-                throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
-            }
             throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return "Success";
     }
 
     public String skipToNext() {
-        checkIsActive();
+        isActive();
         String nextUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER + SpotifyConstants.NEXT;
         String accessToken = authenticationService.getAccessToken();
         WebClient.Builder builder = WebClient.builder();
@@ -67,17 +64,13 @@ public class SpotifyPlayerService {
                             .bodyToMono(String.class)
                             .block();
         } catch (WebClientResponseException exception) {
-            if (exception.getStatusCode().value() == 404) {
-                setPlayerState(false);
-                throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
-            }
             throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return "Success";
     }
 
     public String pause() {
-        checkIsActive();
+        isActive();
         String pauseUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER + SpotifyConstants.PAUSE;
         String accessToken = authenticationService.getAccessToken();
         WebClient.Builder builder = WebClient.builder();
@@ -92,10 +85,6 @@ public class SpotifyPlayerService {
                             .bodyToMono(String.class)
                             .block();
         } catch (WebClientResponseException exception) {
-            if (exception.getStatusCode().value() == 404) {
-                setPlayerState(false);
-                throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
-            }
             if (exception.getStatusCode().value() == 403) {
                 throw new SpotifyApiException("Already paused", HttpStatus.FORBIDDEN);
             }
@@ -105,7 +94,7 @@ public class SpotifyPlayerService {
     }
 
     public String play() {
-        checkIsActive();
+        isActive();
         String playUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER + SpotifyConstants.PLAY;
         String accessToken = authenticationService.getAccessToken();
         WebClient.Builder builder = WebClient.builder();
@@ -120,10 +109,6 @@ public class SpotifyPlayerService {
                             .bodyToMono(String.class)
                             .block();
         } catch (WebClientResponseException exception) {
-            if (exception.getStatusCode().value() == 404) {
-                setPlayerState(false);
-                throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
-            }
             if (exception.getStatusCode().value() == 403) {
                 throw new SpotifyApiException("Already playing", HttpStatus.FORBIDDEN);
             }
@@ -132,7 +117,7 @@ public class SpotifyPlayerService {
         return "Success";
     }
 
-    public boolean isActive() {
+    public void isActive() {
         String playbackStateUri = SpotifyConstants.BASE_API + SpotifyConstants.ME + SpotifyConstants.PLAYER;
         String accessToken = authenticationService.getAccessToken();
         WebClient.Builder builder = WebClient.builder();
@@ -150,32 +135,12 @@ public class SpotifyPlayerService {
         } catch (WebClientResponseException exception) {
             throw new SpotifyApiException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        if (response != null &&
-                response.getDevice() != null &&
-                response.getDevice().is_active()) {
-            setPlayerState(true);
-            return true;
-        }
-        setPlayerState(false);
-        return false;
-    }
+        if (response == null) {
+            throw new SpotifyApiException(String.valueOf(PLAYER_STATE.NO_DEVICE), HttpStatus.NOT_FOUND);
 
-    private void checkIsActive() {
-        String roomId = authenticationService.getRoomId();
-        SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(roomId).orElseThrow(() -> {
-            throw new SpotifyApiException("Room not found", HttpStatus.NOT_FOUND);
-        });
-        if (!spotifyRoom.isActive()) {
-            throw new SpotifyApiException("No player available", HttpStatus.NOT_FOUND);
         }
-    }
-
-    private void setPlayerState(boolean currentState) {
-        String roomId = authenticationService.getRoomId();
-        SpotifyRoom spotifyRoom = spotifyRoomRepository.findById(roomId).orElseThrow(() -> {
-            throw new SpotifyApiException("Room not found", HttpStatus.NOT_FOUND);
-        });
-        spotifyRoom.setActive(currentState);
-        spotifyRoomRepository.save(spotifyRoom);
+        if (!response.getDevice().is_active()) {
+            throw new SpotifyApiException(String.valueOf(PLAYER_STATE.NOT_ACTIVE), HttpStatus.NOT_FOUND);
+        }
     }
 }
