@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BsSpotify } from 'react-icons/bs';
 import toast from 'react-hot-toast';
 import { ErrorMessage } from '../../types/ErrorResponse';
+import cookieList from '../../constants/CookieList';
 
 type Inputs = {
 	roomId: string;
@@ -22,13 +23,7 @@ const Home = () => {
 	const [prevRoom, setPrevRoom] = useState(false);
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
-	const [cookie, setCookie, removeCookie] = useCookies([
-		'roomId',
-		'roomPin',
-		'roomExpiry',
-		'jwtToken',
-		'jwtExpiry',
-	]);
+	const [cookie, setCookie, removeCookie] = useCookies(cookieList);
 	let code = searchParams.get('code');
 
 	const onSubmit: SubmitHandler<Inputs> = (data) => {
