@@ -51,44 +51,28 @@ const Room = () => {
 				toast.error(errorResponse.message, { position: 'top-center' });
 				return;
 			}
+
+			const body = (await response.json()) as RoomInformation;
+			body.roomId = roomId || '';
+			body.pin = data.pin;
+
+			const authorizationHeader = response.headers.get('Authorization');
+
+			if (authorizationHeader) {
+				setCookie('jwtToken', authorizationHeader.slice(7), {
+					maxAge: 3600,
+				});
+				setCookie('jwtExpiry', Date.now() + 3600000 + '', {
+					maxAge: 3600,
+				});
+			}
+			setCookie('roomId', body.roomId, { maxAge: 3600 });
+			setCookie('roomExpiry', Date.parse(body.expiry), { maxAge: 3600 });
+			setCookie('roomPin', body.pin, { maxAge: 3600 });
+			setIsAuthenticated(true);
 		} catch (error) {
 			toast.error('Internal Server Error', { position: 'top-center' });
 		}
-		const response = await fetch(url, {
-			method: 'POST',
-			headers: {
-				'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				userId: data.userId,
-				pin: data.pin,
-				roomId: roomId,
-			}),
-		});
-		if (!response.ok) {
-			const body = await response.json();
-			toast.error(body.message);
-			return;
-		}
-		const body = (await response.json()) as RoomInformation;
-		body.roomId = roomId || '';
-		body.pin = data.pin;
-
-		const authorizationHeader = response.headers.get('Authorization');
-
-		if (authorizationHeader) {
-			setCookie('jwtToken', authorizationHeader.slice(7), {
-				maxAge: 3600,
-			});
-			setCookie('jwtExpiry', Date.now() + 3600000 + '', {
-				maxAge: 3600,
-			});
-		}
-		setCookie('roomId', body.roomId, { maxAge: 3600 });
-		setCookie('roomExpiry', Date.parse(body.expiry), { maxAge: 3600 });
-		setCookie('roomPin', body.pin, { maxAge: 3600 });
-		setIsAuthenticated(true);
 	};
 
 	let display = null;
