@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import { CookiesProvider } from 'react-cookie';
 import { Toaster } from 'react-hot-toast';
+import Landing from './pages/landing/landing';
 
 const router = createBrowserRouter([
 	{
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
 		element: <Room></Room>,
 		path: '/room/:roomId',
 	},
+	{
+		element: <Landing />,
+		path: '/landing',
+	},
 ]);
 
 const queryClient = new QueryClient();
@@ -30,8 +35,10 @@ const App = () => {
 		<Provider store={store}>
 			<QueryClientProvider client={queryClient}>
 				<CookiesProvider>
-					<RouterProvider router={router} />
-					<Toaster />
+					<div className="font-base">
+						<RouterProvider router={router} />
+						<Toaster />
+					</div>
 				</CookiesProvider>
 			</QueryClientProvider>
 		</Provider>
